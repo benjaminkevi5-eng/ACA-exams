@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ACA Practice Exams</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Layout: one exam sheet on a cool paper ground; question number in a left margin column, like a printed HSG exam. */
+:root{
+  --paper:#eef2f1; --sheet:#ffffff; --ink:#17201d; --muted:#5a6863; --rule:#d6dfdb;
+  --pen:#2142a6; --pen-soft:#e6ebfa; --ok:#1b7744; --ok-soft:#e1f2e7; --bad:#b0281f; --bad-soft:#fbe6e3;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-ui:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1513; --sheet:#171f1d; --ink:#e4ebe8; --muted:#97a6a0; --rule:#2a3532;
+  --pen:#93a9ff; --pen-soft:#1d2643; --ok:#62cf8d; --ok-soft:#143020; --bad:#ff8b80; --bad-soft:#3a1c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1513; --sheet:#171f1d; --ink:#e4ebe8; --muted:#97a6a0; --rule:#2a3532;
+  --pen:#93a9ff; --pen-soft:#1d2643; --ok:#62cf8d; --ok-soft:#143020; --bad:#ff8b80; --bad-soft:#3a1c19; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--paper)}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:14px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,6vw,46px);line-height:1.02;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;background:var(--sheet);padding:3px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:14px;border:0;background:transparent;color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:999px;padding:9px 18px;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink)}
+.btn.primary{background:var(--pen);border-color:var(--pen);color:var(--sheet)}
+.btn:focus-visible,.seg button:focus-visible,.opt input:focus-visible+.letter{outline:3px solid var(--pen);outline-offset:2px}
+.examno{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--paper);padding-block:10px;border-bottom:1px solid var(--rule);
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.progress{flex:1 1 180px;min-width:0;display:grid;gap:4px}
+.progress small{color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:6px;background:var(--rule);border-radius:3px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--pen);width:0;transition:width .25s}
+
+.results{margin-top:18px;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.results h2{font-family:var(--f-display);font-size:24px;margin:0}
+.score{font-family:var(--f-display);font-size:40px;font-weight:800;line-height:1}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 18px}
+.topic{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13.5px}
+.topic .t{min-width:0}
+.topic .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.topic .track{grid-column:1/-1;height:4px}
+.topic.weak .v{color:var(--bad);font-weight:600}
+
+.part{margin-top:34px}
+.part > h2{font-family:var(--f-display);font-weight:800;font-size:26px;margin:0 0 4px}
+.part > p{margin:0 0 14px;color:var(--muted)}
+.block{margin-top:22px}
+.block h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pen);margin:0 0 8px;font-weight:600}
+.intro{font-family:var(--f-body);background:var(--sheet);border:1px dashed var(--rule);border-radius:8px;padding:14px 16px;margin-bottom:10px}
+
+.q{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;display:grid;grid-template-columns:3.4rem minmax(0,1fr);margin-bottom:10px}
+.q .num{border-right:1px solid var(--rule);padding:16px 0;text-align:center;font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+.q .body{padding:14px 18px 16px;min-width:0;display:grid;gap:10px}
+.q .head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.q .tag{font-size:12px;color:var(--muted)}
+.q .pts{font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.stem{font-family:var(--f-body);font-size:16px;line-height:1.55;max-width:68ch}
+.stem p{margin:0 0 .5em}.stem p:last-child{margin:0}
+.stem u{text-decoration-color:var(--pen);text-underline-offset:3px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font-size:14px;font-family:var(--f-body)}
+th,td{border:1px solid var(--rule);padding:4px 10px;text-align:left;vertical-align:top}
+th{background:var(--paper);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.opts{display:grid;gap:4px}
+.opt{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:8px;align-items:start;padding:6px 8px;border-radius:6px;cursor:pointer;font-family:var(--f-body);font-size:15.5px}
+.opt:hover{background:var(--paper)}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.letter{width:1.7rem;height:1.7rem;border-radius:50%;border:1.5px solid var(--rule);display:grid;place-items:center;font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--muted)}
+.opt input:checked + .letter{background:var(--pen);border-color:var(--pen);color:var(--sheet)}
+.opt .txt{padding-top:2px;min-width:0}
+.checked .opt{cursor:default}
+.checked .opt:hover{background:transparent}
+.opt.right{background:var(--ok-soft)}
+.opt.right .letter{border-color:var(--ok);color:var(--ok)}
+.opt.right input:checked + .letter{background:var(--ok);border-color:var(--ok);color:var(--sheet)}
+.opt.wrong{background:var(--bad-soft)}
+.opt.wrong input:checked + .letter{background:var(--bad);border-color:var(--bad)}
+.opt.wrong .txt{text-decoration:line-through;text-decoration-color:var(--bad)}
+.verdict{font-size:13px;font-weight:600}
+.verdict.ok{color:var(--ok)}.verdict.no{color:var(--bad)}.verdict.skip{color:var(--muted)}
+.sol{border-top:1px dashed var(--rule);padding-top:10px;font-size:14.5px;display:grid;gap:4px}
+.sol b{font-weight:600}
+.sol .calc{font-family:var(--f-mono);font-size:13px;overflow-x:auto;white-space:nowrap;padding:2px 0}
+.bhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin:0 0 8px}
+.bhead h3{margin:0}
+.btopic{font-size:13px;color:var(--muted)}
+.bpts{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.ptot{font-size:18px;color:var(--muted);font-weight:600}
+.intro ul{margin:.3em 0;padding-left:1.2em}
+.score .pc{font-size:20px;font-weight:600;color:var(--muted)}
+.hint{margin:0;color:var(--muted);font-size:13.5px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn:disabled{opacity:.6;cursor:default}
+.linkbtn{font:inherit;font-size:13px;background:none;border:0;color:var(--pen);text-decoration:underline;cursor:pointer;padding:0}
+.foot{margin-top:28px;color:var(--muted);font-size:13px;max-width:70ch}
+@media (max-width:520px){
+  .q{grid-template-columns:minmax(0,1fr)}
+  .q .num{border-right:0;border-bottom:1px solid var(--rule);text-align:left;padding:8px 18px}
+  .stem{font-size:15.5px}
+}
+@media (prefers-reduced-motion: reduce){.track i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">HSG · ACA English Track · Controlling 60 + Accounting &amp; Auditing 30</div>
+    <h1>ACA Practice Exams</h1>
+    <p class="lede">Every exam follows the real structure: 9 Controlling questions and 29 Accounting &amp; Auditing questions in 7 blocks, 90 points in total. Calculations are harder versions of past exercises with new numbers and an extra step. MCQs mix rephrased past-exam ideas with lecture-slide topics that rarely appear. Questions you have already checked are avoided in new exams until the question bank runs out.</p>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Exam part">
+        <button type="button" id="part-full" data-part="full">Full exam (90)</button>
+        <button type="button" id="part-ctrl" data-part="ctrl">Controlling (60)</button>
+        <button type="button" id="part-aa" data-part="aa">Accounting &amp; Auditing (30)</button>
+      </div>
+      <button class="btn" type="button" id="newExam">New exam</button>
+      <span class="examno" id="examNo"></span>
+    </div>
+  </header>
+  <div class="bar">
+    <div class="progress"><small id="progTxt">0 answered</small><div class="track"><i id="progBar"></i></div></div>
+    <button class="btn primary" type="button" id="check">Check answers</button>
+  </div>
+  <section class="results" id="results" hidden></section>
+  <main id="exam"></main>
+  <p class="foot">Practice questions written from the structure of past ACA exams and your lecture slides; they are not the original exam questions. In Controlling, E) means none of A)–D) is correct, and in a case question later parts may build on earlier results. <button class="linkbtn" type="button" id="resetSeen">Forget which questions I've seen</button></p>
+</div>
+<script>
+/* ===== ACA practice exam engine v2 ===== */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeRng(seed){
+  var r=mulberry32(seed),g={r:r};
+  g.ri=function(a,b){return a+Math.floor(r()*(b-a+1));};
+  g.step=function(a,b,s){return g.ri(Math.ceil(a/s),Math.floor(b/s))*s;};
+  g.pick=function(arr){return arr[Math.floor(r()*arr.length)];};
+  g.u=function(a,b){return a+r()*(b-a);};
+  g.chance=function(p){return r()<p;};
+  g.shuffle=function(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;};
+  g.sample=function(arr,k){return g.shuffle(arr).slice(0,k);};
+  return g;
+}
+function num(x,dec,sep){
+  dec=dec||0;sep=sep||",";
+  var s=Math.abs(x).toFixed(dec),p=s.split(".");
+  var i=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,sep);
+  return (x<0&&Number(s)!==0?"−":"")+i+(p[1]?"."+p[1]:"");
+}
+function r2(x){return Math.round(x*100)/100;}
+function r4(x){return Math.round(x*10000)/10000;}
+function C(x,d){return "CHF "+num(x,d||0,",");}
+function S(x,d){return "CHF "+num(x,d||0,"'");}
+function pct(x,d){return num(x*100,d==null?1:d)+"%";}
+function V(x){return "CHF "+num(Math.abs(x),0,",")+(x>0?" U":" F");}
+function tbl(head,rows,nc){
+  nc=nc||[];var h="<div class='tbl'><table>";
+  if(head)h+="<tr>"+head.map(function(c,i){return "<th"+(nc.indexOf(i)>=0?" class='n'":"")+">"+c+"</th>";}).join("")+"</tr>";
+  rows.forEach(function(r){h+="<tr>"+r.map(function(c,i){return "<td"+(nc.indexOf(i)>=0?" class='n'":"")+">"+c+"</td>";}).join("")+"</tr>";});
+  return h+"</table></div>";
+}
+function calc(lines){return lines.map(function(l){return "<div class='calc'>"+l+"</div>";}).join("");}
+function P(s){return "<p>"+s+"</p>";}
+var NONE="None of the answers A) – D) is correct.";
+var MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var COS=["Alpenlicht AG","Rhyner Tools AG","Säntis Foods AG","Limmat Textiles AG","Grischa Pumps AG","Aare Optics AG","Brienz Cycles AG","Seeland Paper AG","Jura Watches AG","Ticino Coffee SA","Leman Pharma SA","Engadin Outdoor AG","Thur Plastics AG","Zug Robotics AG","Emmental Dairy AG","Pilatus Print AG","Calanda Kitchen AG","Bergkristall AG","Lucerna Optics AG","Rigi Solar AG","Gotthard Lights AG","Nordhang AG","Capsulo AG","Talwerk AG","Mythen Audio AG","Sihl Furniture AG","Glarus Textil AG","Albula Rail Parts AG"];
+
+/* ---------- option builders ---------- */
+function numMC(g,correct,ds,fmt,noneP){
+  var cf=fmt(correct),seen={};seen[cf]=1;var list=[];
+  ds.forEach(function(d){if(typeof d!=="number"||!isFinite(d))return;var f=fmt(d);if(!seen[f]){seen[f]=1;list.push(f);}});
+  var m=[0.9,1.1,0.85,1.15,0.8,1.2,0.75,1.25,0.7,1.3,0.6,1.4],k=0;
+  while(list.length<4&&k<80){var f=fmt(correct*(m[k%12]+(k>=12?0.013*k:0))+(Math.abs(correct)<1e-9?(k+1)*1000:0));if(!seen[f]){seen[f]=1;list.push(f);}k++;}
+  var none=g.chance(noneP==null?0.15:noneP);
+  var o=none?g.shuffle(list.slice(0,4)):g.shuffle([cf].concat(list.slice(0,3)));o.push(NONE);
+  return {options:o,answer:none?4:o.indexOf(cf),correctText:cf,none:none};
+}
+function txtMC(g,correct,wrongs){var o=g.shuffle([correct].concat(g.sample(wrongs,3)));o.push(NONE);return {options:o,answer:o.indexOf(correct),correctText:correct};}
+function aaNum(g,correct,ds,fmt){
+  var cf=fmt(correct),seen={};seen[cf]=1;var list=[];
+  ds.forEach(function(d){if(typeof d!=="number"||!isFinite(d))return;var f=fmt(d);if(!seen[f]){seen[f]=1;list.push(f);}});
+  var m=[0.9,1.1,0.8,1.2,0.75,1.3],k=0;
+  while(list.length<3&&k<50){var f=fmt(correct*(m[k%6]+(k>=6?0.02*k:0)));if(!seen[f]){seen[f]=1;list.push(f);}k++;}
+  var o=g.shuffle([cf].concat(list.slice(0,3)));return {options:o,answer:o.indexOf(cf),correctText:cf};
+}
+function aaTxt(g,correct,wrongs){var o=g.shuffle([correct].concat(g.sample(wrongs,3)));return {options:o,answer:o.indexOf(correct),correctText:correct};}
+function ansC(res){return res.none?"<div>The correct value, <b>"+res.correctText+"</b>, is not among A)–D), so the answer is <b>E)</b>.</div>":"<div>Answer: <b>"+String.fromCharCode(65+res.answer)+") "+res.correctText+"</b></div>";}
+function ansA(res){return "<div>Answer: <b>"+(res.options.length===2?"":String.fromCharCode(97+res.answer)+". ")+res.correctText+"</b></div>";}
+function QC(topic,stem,res,sol){return {style:"ctrl",topic:topic,stem:stem,options:res.options,answer:res.answer,solution:sol+ansC(res)};}
+function QA(topic,stem,res,sol){return {style:"aa",topic:topic,stem:stem,options:res.options,answer:res.answer,solution:sol+ansA(res)};}
+function pickFresh(g,bank,k,cat){
+  var pool=bank.filter(function(it){return (!cat||cat.indexOf(it.cat)>=0)&&!g.used[it.id];});
+  var fresh=pool.filter(function(it){return !g.avoid[it.id];}),old=pool.filter(function(it){return g.avoid[it.id];});
+  var out=g.sample(fresh,k);if(out.length<k)out=out.concat(g.sample(old,k-out.length));
+  out.forEach(function(it){g.used[it.id]=1;g.ids.push(it.id);});return out;
+}
+function conceptC(g,it,topic){var res=txtMC(g,it.c,it.w);return QC(topic,P(it.s),res,"<div>"+it.e+"</div>");}
+function conceptA(g,it,topic){
+  if(it.tf!==undefined){var res={options:["True","False"],answer:it.tf?0:1,correctText:it.tf?"True":"False"};return QA(topic,P("True or false: "+it.s),res,"<div>"+it.e+"</div>");}
+  var r=aaTxt(g,it.c,it.w);return QA(topic,P(it.s),r,"<div>"+it.e+"</div>");
+}
+
+/* =================== CONCEPT BANKS (from lecture slides + rephrased past-exam ideas) =================== */
+function bank(prefix,arr){arr.forEach(function(it,i){it.id=prefix+i;});return arr;}
+var CB=bank("C",[
+ {cat:"mgmt",s:"Which statement about management accounting compared with financial accounting is <u>false</u>?",c:"Management accounting reports must comply with IFRS/GAAP and be certified by external auditors.",w:["Management accounting is primarily future-oriented, e.g. budgets prepared before the year starts.","The primary users of financial accounting are external parties such as investors, banks and regulators.","Management accounting is designed to influence the behavior of managers and employees.","Management accounting reports range from hourly information to 15–20 year horizons."],e:"Internal reports do not have to follow IFRS/GAAP; they are based on a cost-benefit analysis."},
+ {cat:"mgmt",s:"Which is <u>not</u> one of the key management accounting guidelines from the lecture?",c:"Use one uniform cost concept for all purposes to ensure comparability",w:["Apply a cost-benefit approach","Give full recognition to behavioral as well as technical considerations","Use different costs for different purposes"],e:"The guidelines are: cost-benefit approach, behavioral and technical considerations, and different costs for different purposes."},
+ {cat:"mgmt",s:"A management accountant refuses a gift from a supplier that might influence her judgment. Which ethical principle does this reflect?",c:"Integrity",w:["Competence","Confidentiality","Credibility"],e:"Integrity covers avoiding conflicts of interest and refusing gifts or favors that might influence behavior."},
+ {cat:"mgmt",s:"Disclosing delays or deficiencies in information and communicating it fairly and objectively belongs to which ethical principle?",c:"Credibility",w:["Integrity","Competence","Confidentiality"],e:"Credibility: communicate fairly and objectively, disclose all relevant information, disclose delays or deficiencies."},
+ {cat:"mgmt",s:"In the reduced decision-making process, <u>performance evaluation of personnel and operations</u> belongs to:",c:"Control",w:["Planning","Budgeting only","Strategy formulation","Choosing goals"],e:"Planning = choosing goals, predicting results, deciding how to attain goals. Control = implementing action and evaluating performance."},
+ {cat:"mgmt",s:"Which statement about cost classification is <u>false</u>?",c:"Indirect costs can be traced to a single cost object in an economically feasible way.",w:["Direct costs are usually variable costs.","Fixed costs are usually indirect costs.","Variable costs change in total in proportion to the level of activity.","Fixed costs remain unchanged in total despite wide changes in output."],e:"Indirect costs are common to several cost objects and cannot be traced economically to a single one."},
+ {cat:"mgmt",s:"For a manufacturing company, which cost is a <u>period cost</u>?",c:"Distribution costs",w:["Direct materials used","Direct manufacturing labor","Manufacturing overhead","Depreciation of factory machines"],e:"R&D, design, marketing, distribution and customer-service costs are period costs; manufacturing costs are inventoriable."},
+ {cat:"mgmt",s:"A manager is accountable for investments, revenues and costs of her unit. This unit is a(n):",c:"Investment center",w:["Profit center","Revenue center","Cost center"],e:"Cost center: costs only; revenue center: revenues only; profit center: revenues and costs; investment center: also investments."},
+ {cat:"budget",s:"Which statement about planning and budgeting processes is <u>false</u>?",c:"Bottom-up budgeting is the fastest approach and is therefore particularly useful in a crisis.",w:["Top-down budgeting allows rapid preparation, but feasibility may be left out.","Bottom-up budgeting is more realistic but can be uncoordinated and less demanding.","The countercurrent process starts top-down, then plans are commented on and aggregated back up.","A budget usually covers one year, while a forecast covers about three months plus a projection of the rest of the year."],e:"Top-down planning is rapid and useful in crises; bottom-up is more realistic but slower and less coordinated."},
+ {cat:"budget",s:"Which budget belongs to the <u>financial budget</u> rather than the operating budget?",c:"Cash budget",w:["Production budget","Revenues budget","Direct material cost budget","Marketing costs budget"],e:"The financial budget contains the capital expenditures budget, cash budget, budgeted balance sheet and budgeted statement of cash flows."},
+ {cat:"budget",s:"Which is <u>not</u> a function or benefit of budgeting discussed in the lecture?",c:"Guaranteeing that forecasts will be accurate",w:["Coordination and communication between departments","A framework for judging performance and facilitating learning","Motivation through challenging but achievable targets"],e:"Budgets coordinate, provide a performance framework and motivate; forecasting remains uncertain (a key budgeting challenge)."},
+ {cat:"budget",s:"Which statement about responsibility accounting is correct?",c:"It measures the plans, budgets, actions and actual results of each responsibility center.",w:["It only applies to profit centers.","It replaces the master budget.","It requires all managers to be accountable for revenues.","It is only used in functional organizations."],e:"Responsibility accounting tracks plans and results by responsibility center (cost, revenue, profit, investment)."},
+ {cat:"var",s:"A <u>Level 0</u> variance analysis is:",c:"the difference between actual operating income and static-budget operating income",w:["the split of the flexible-budget variance into price and efficiency variances","the comparison of actual input quantities with standard quantities","the sales-volume variance only","the comparison of two consecutive years"],e:"Level 0 is the overall static-budget variance of operating income; Levels 1–3 'peel the onion' further."},
+ {cat:"var",s:"The flexible budget is calculated using:",c:"actual output and budgeted prices and costs",w:["budgeted output and actual prices","actual output and actual prices","budgeted output and budgeted prices","last year's actual results"],e:"The flexible budget adjusts the static budget to actual output while keeping budgeted prices."},
+ {cat:"var",s:"Which situation most likely causes a <u>favorable</u> direct materials price variance?",c:"Purchasing bought larger lot sizes than planned and received volume discounts.",w:["Poor quality of work in production","Too many rush orders from marketing","Inadequate qualifications of employees","Bad product design"],e:"Discounts or unplanned material price drops cause favorable price variances; the others drive unfavorable (mostly efficiency) variances."},
+ {cat:"var",s:"The <u>variable overhead efficiency variance</u> measures:",c:"the difference between the actual and the budgeted quantity of the allocation base for actual output, multiplied by the budgeted variable overhead rate",w:["the difference between the actual and budgeted variable overhead rate, multiplied by the actual quantity of the allocation base","budgeted fixed overhead minus fixed overhead allocated to actual output","actual variable overhead minus static-budget variable overhead","the difference between actual and budgeted output, multiplied by the budgeted selling price"],e:"Efficiency: (actual base − budgeted base for actual output) × budgeted rate. Spending: (actual rate − budgeted rate) × actual base."},
+ {cat:"var",s:"The <u>fixed overhead production-volume variance</u> is:",c:"budgeted fixed overhead minus fixed overhead allocated on the basis of actual output",w:["actual fixed overhead minus budgeted fixed overhead","actual fixed overhead minus fixed overhead allocated","the variance caused by paying higher prices for overhead items","always favorable when actual fixed costs are below budget"],e:"PVV = budgeted fixed OH − allocated fixed OH. It shows under-/over-absorption due to output differing from the denominator level."},
+ {cat:"var",s:"Which statement about benchmarking is correct?",c:"It continuously compares a firm's performance with the best levels of performance in competing firms or firms with similar processes.",w:["It compares actual results with the static budget only.","It is the same as a sales-volume variance.","It is only used for external reporting.","It replaces variance analysis."],e:"Benchmarking compares performance with best practice, complementing variance analysis."},
+ {cat:"abc",s:"Which statement about activity-based costing is <u>false</u>?",c:"ABC adds the most value when products are homogeneous and overhead is a small share of total costs.",w:["ABC requires management to estimate the cost of activity pools and to identify and measure cost drivers.","Activity-cost rates need to be updated regularly.","Very detailed ABC systems are costly to operate and difficult to understand.","Simple overhead allocation can cause large errors for heterogeneous products."],e:"ABC matters most with heterogeneous products and high overhead; simple allocation is acceptable for homogeneous products."},
+ {cat:"abc",s:"Why have overhead allocation rates risen sharply (sometimes above 500%) compared with the past?",c:"Automation has lowered direct costs and increased overhead costs.",w:["Direct labor costs have risen faster than overhead.","Accounting standards now require ABC.","Companies produce fewer product variants.","Fixed costs have become variable."],e:"Automation means low direct costs and high overhead, so traditional surcharges become large and error-prone."},
+ {cat:"cvp",s:"Which is <u>not</u> an assumption of the CVP / break-even analysis in the lecture?",c:"Inventory levels change because production differs from sales.",w:["All costs can be divided into fixed and variable costs.","Selling price and variable cost per unit are independent of quantity.","Fixed costs are independent of quantity."],e:"CVP assumes no warehouse effect: sales = production."},
+ {cat:"cvp",s:"Break-even <u>sales revenue</u> can be calculated as:",c:"Fixed costs / (1 − variable cost per unit / price)",w:["Fixed costs / (price − variable cost per unit)","Fixed costs / variable cost per unit","(Fixed costs + variable costs) / price","Fixed costs × contribution margin ratio"],e:"Break-even revenue = Cf / CM ratio = Cf / (1 − cv/p). Dividing by CM per unit gives break-even units."},
+ {cat:"price",s:"Which statement about pricing approaches is <u>false</u>?",c:"Target pricing is typically preferable in markets with low price sensitivity and long product life cycles.",w:["Cost-plus pricing is common for customized services such as consulting or accounting.","Target pricing starts from the price customers will pay and derives the allowable cost.","A challenge of cost-plus pricing is that it may ignore competition.","Target costing uses value engineering to reach the target cost."],e:"Target pricing suits price-sensitive, highly competitive markets with short life cycles."},
+ {cat:"price",s:"Which statement is <u>false</u>?",c:"Cost-plus pricing is market driven and asks: 'What can a product cost?'",w:["Target costing is a retrograde approach starting from the expected sales price.","Cost-plus pricing is a progressive approach starting from the cost of material and production.","Target costing derives the allowable cost from the target price minus the target profit.","Cost-plus pricing asks: 'What will a product cost, and can this be passed on to the customer?'"],e:"Cost-plus is company driven ('what will it cost?'); target costing is market driven ('what can it cost?')."},
+ {cat:"price",s:"The three major factors affecting pricing decisions are:",c:"customers, competitors and costs",w:["costs, taxes and inflation","customers, suppliers and shareholders","competitors, regulators and auditors"],e:"Customers (demand), competitors (their costs and capacity) and costs (supply)."},
+ {cat:"price",s:"Under target costing, a product's actual full cost is below its allowable (target) cost. Which statement is correct?",c:"The product earns an operating margin above the target margin.",w:["The product must be redesigned with value engineering.","The selling price must be increased.","The target margin has not been reached.","Cost-plus pricing must be used instead."],e:"Allowable cost = price − target profit. If actual cost is lower, the margin exceeds the target (as in the Nespresso case)."},
+ {cat:"cap",s:"Which method has these drawbacks: cash flows after the recovery date are ignored and the time value of money is not considered?",c:"Payback method",w:["Net present value method","Internal rate of return method","Discounted cash flow method"],e:"The (static) payback method focuses on liquidity and ignores later cash flows and discounting."},
+ {cat:"cap",s:"Which method gives the value of a project in CHF, allows projects to be summed up, but makes it difficult to derive the discount rate?",c:"Net present value method",w:["Internal rate of return method","Accrual accounting rate of return method","Payback method"],e:"NPV: value in CHF, additive across projects; the challenge is choosing the discount rate."},
+ {cat:"cap",s:"Which statement about the internal rate of return is correct?",c:"It is the discount rate at which the NPV of the project equals zero.",w:["It is the required rate of return set by management.","It equals the average accounting return divided by the initial investment.","A project is acceptable if the IRR is below the required rate of return.","It ignores the time value of money."],e:"IRR: NPV = 0. A project is acceptable if IRR ≥ RRR."},
+ {cat:"cap",s:"Which is the correct order of the five stages of capital budgeting?",c:"Identify projects → obtain information → make predictions → make decisions → implement, evaluate and learn",w:["Obtain information → identify projects → make decisions → make predictions → implement","Make predictions → identify projects → obtain information → implement → make decisions","Identify projects → make decisions → obtain information → make predictions → implement"],e:"Identify projects, obtain information, make predictions, choose among alternatives, implement/evaluate/learn."},
+ {cat:"cap",s:"Which term is <u>not</u> used as a synonym for the discount rate in capital budgeting?",c:"Internal rate of return",w:["Required rate of return","Hurdle rate","Opportunity cost of capital","Cost of capital (WACC)"],e:"The discount rate is also called RRR, hurdle rate, cost of capital or opportunity cost of capital. IRR is a result, not an input."},
+ {cat:"cap",s:"Which change would typically <u>increase</u> the discount rate applied to a project?",c:"Higher riskiness of the investment",w:["Lower inflation","A lower risk-free interest rate","Lower industry-specific risk"],e:"More risk (project, industry, market premium), higher inflation or interest rates increase the discount rate."},
+ {cat:"bsc",s:"Which is a <u>leading</u> indicator in a balanced scorecard?",c:"Training hours per employee",w:["Return on investment","Revenue growth","Net income","Operating margin"],e:"Learning-and-growth drivers lead future process, customer and financial outcomes, which are lagging measures."},
+ {cat:"bsc",s:"Which statement about implementing a balanced scorecard is <u>false</u>?",c:"Managers should seek improvements across all measures all of the time.",w:["Cause-and-effect links are hypotheses, not precise relationships.","Subjective measures are important in addition to objective ones.","Top management should not ignore nonfinancial measures when evaluating managers.","A good scorecard limits the number of measures to the most critical ones."],e:"The lecture lists 'seeking improvements across all measures all the time' as a pitfall."},
+ {cat:"bsc",s:"Which is a feature of a <u>good</u> balanced scorecard?",c:"It tells the story of the strategy through a sequence of cause-and-effect relationships.",w:["It includes as many measures as possible.","It focuses on financial measures only.","It is kept confidential from employees.","It replaces the budget."],e:"A good BSC tells the strategy story, communicates it, motivates, limits measures and highlights tradeoffs."},
+ {cat:"bsc",s:"The measure 'manufacturing cycle time' belongs to which balanced scorecard perspective?",c:"Internal business process",w:["Learning and growth","Customer","Financial"],e:"Process measures cover innovation, operations and post-sales service."},
+ {cat:"bsc",s:"The measure 'customer retention rate' belongs to which balanced scorecard perspective?",c:"Customer",w:["Learning and growth","Internal business process","Financial"],e:"The customer perspective measures success in target segments."},
+ {cat:"bsc",s:"Which statement about Porter's generic strategies is correct?",c:"Product differentiation means offering products that customers perceive as superior and unique.",w:["Cost leadership means charging premium prices.","Product differentiation always requires the lowest cost in the industry.","Both strategies ignore customers.","Cost leadership and product differentiation are measured only with financial measures."],e:"Differentiation: unique products, often premium prices. Cost leadership: lower costs than competitors."},
+ {cat:"perf",s:"Which statement about return on sales (ROS) is <u>false</u>?",c:"ROS takes the investment base of a business unit into account.",w:["ROS = EBIT / revenue.","ROS is simple to compute and widely understood.","ROS measures how effectively costs are managed.","ROS is one component of ROI in the DuPont method."],e:"ROS ignores investment; ROI = ROS × capital turnover adds it."},
+ {cat:"perf",s:"In the DuPont method, ROI equals:",c:"return on sales × capital turnover (revenue / average investment)",w:["return on sales / capital turnover","EBIT − (RRR × investment)","after-tax operating income − WACC × (total assets − current liabilities)","revenue / EBIT"],e:"ROI = EBIT/revenue × revenue/investment."},
+ {cat:"perf",s:"Which statement about EVA is <u>false</u>?",c:"EVA uses pre-tax operating income and total assets as the investment base.",w:["EVA uses after-tax operating income.","EVA uses the after-tax weighted-average cost of capital.","EVA uses total assets minus current liabilities as the investment.","EVA is a variation of residual income."],e:"EVA = after-tax OI − WACC × (total assets − current liabilities)."},
+ {cat:"perf",s:"The imputed cost of the investment used in residual income is:",c:"an opportunity cost that is not recorded in the financial accounting system",w:["the interest expense shown in the income statement","the depreciation of the investment","the dividend paid to shareholders"],e:"RI = income − RRR × investment; the RRR × investment charge is an opportunity cost, not booked in financial accounting."}
+]);
+
+var U1=bank("U",[
+ {s:"A company listed in the <u>Domestic</u> segment of SIX Swiss Exchange may prepare its consolidated financial statements under:",c:"Swiss GAAP FER, IFRS or US GAAP",w:["IFRS only","IFRS or US GAAP only","Swiss GAAP FER only"],e:"Main segment: IFRS or US GAAP. Domestic segment: Swiss GAAP FER, IFRS or US GAAP."},
+ {s:"A company listed in the <u>Main</u> segment of SIX Swiss Exchange may report under:",c:"IFRS or US GAAP",w:["Swiss GAAP FER, IFRS or US GAAP","Swiss GAAP FER only","the Swiss Code of Obligations only"],e:"Main segment: IFRS or US GAAP only."},
+ {tf:true,s:"Under the Swiss Code of Obligations, hidden reserves are still permissible, and CO financial statements serve as the basis for taxation in Switzerland.",e:"CO accounting follows prudence, allows hidden reserves and is used for tax purposes."},
+ {s:"Which accounting standard is <u>rule-based</u> with extensive guidance (about 25,000 pages)?",c:"US GAAP",w:["IFRS","Swiss GAAP FER","Swiss Code of Obligations"],e:"US GAAP is rule-based; IFRS and Swiss GAAP FER are principle-based with true and fair view."},
+ {s:"Which statement about Swiss GAAP FER is <u>false</u>?",c:"It is rule-based and provides comprehensive guidance of several thousand pages.",w:["It focuses on small and medium-sized organizations and groups in Switzerland.","It follows the true and fair view principle.","Swiss GAAP FER 30 covers groups of organizations.","Swiss GAAP FER 31 contains additional rules for listed companies."],e:"FER has about 200 pages, is principle-based with limited guidance."},
+ {tf:true,s:"The IASC was founded in 1973 and was replaced by the IASB in 2001.",e:"IASC 1973 → IASB 2001."},
+ {s:"Dormakaba switched from IFRS to Swiss GAAP FER and offset acquired goodwill against equity. What was the main effect?",c:"Its equity ratio dropped sharply.",w:["Its equity ratio increased sharply.","Its goodwill amortization expense increased.","Its revenue decreased.","Its cash flow from operations fell."],e:"Offsetting goodwill directly against equity reduces equity; the equity ratio fell from about 40% to about 10%."},
+ {s:"Under Swiss GAAP FER, acquired goodwill can be:",c:"capitalized and amortized (e.g. over 5 years) or offset directly against equity",w:["capitalized and tested only for impairment, never amortized","expensed immediately in the income statement","recognized only by listed companies"],e:"FER offers two choices: capitalize and amortize, or charge directly to equity. IFRS: capitalize and test annually for impairment."},
+ {s:"Entity A owns 35% of Entity B and has significant influence. B is:",c:"an associated company, accounted for using the equity method",w:["a joint venture, accounted for using the equity method","a subsidiary, fully consolidated","an associated company, proportionately consolidated"],e:"20–50% significant influence: associate → equity method."},
+ {s:"Entity A shares joint control (50%) over Entity B with another investor. Which method may <u>not</u> be applied to B?",c:"Full consolidation",w:["Proportionate consolidation","Equity method","Neither the equity method nor proportionate consolidation"],e:"Joint ventures: proportionate consolidation or equity method (as in the lecture); full consolidation requires control."},
+ {s:"Entity A holds 12% of Entity B's voting rights with limited influence. How is the investment shown in A's consolidated statements?",c:"As a financial asset in the balance sheet",w:["Using the equity method","Using proportionate consolidation","Using full consolidation"],e:"Below 20% (limited influence): financial investment."},
+ {s:"In which case would Entity A show non-controlling interests (NCI)?",c:"A holds 80% of B.",w:["A holds 30% of B.","A holds 100% of B.","A holds 15% of B."],e:"NCI arises when a subsidiary is controlled (>50%) but not wholly owned."},
+ {s:"Which statement about non-controlling interests is <u>false</u>?",c:"NCI is presented as a liability in the consolidated balance sheet.",w:["NCI appears in the balance sheet separately from liabilities and the parent shareholders' equity.","NCI's share of profit is shown before net earnings attributable to the parent's shareholders.","Control does not require a 100% stake.","NCI represents the claim of other shareholders on the subsidiary's net assets and income."],e:"NCI is part of equity, shown separately; it is not a liability."},
+ {s:"Which step belongs to the <u>standardization</u> of single financial statements rather than to the elimination (consolidation) steps?",c:"Currency conversion",w:["Consolidation of capital","Consolidation of receivables and liabilities","Elimination of intercompany profits","Consolidation of income and expenses"],e:"Standardization: consistent dates, recognition and measurement, currency conversion. Elimination: capital, debt, intercompany results, income/expenses."},
+ {s:"What do consolidated and individual financial statements have in common?",c:"The elements included (assets, liabilities, equity, income, expenses)",w:["The treatment of intra-group transactions","The entity level for which they are prepared","Always the same accounting standard"],e:"Both contain the same elements; but intra-group transactions are eliminated only at group level, and standards can differ."},
+ {s:"The equity method is also referred to as:",c:"one-line consolidation",w:["proportionate consolidation","capital consolidation","debt consolidation"],e:"The investment is shown as one line in non-current assets and the share of profit in one line of the income statement."},
+ {s:"When does an acquisition typically produce <u>no</u> goodwill at all?",c:"When a subsidiary is newly founded and the investment equals its equity",w:["In a classic acquisition of a profitable competitor","When the acquisition cost exceeds the fair value of net assets","When the parent pays a control premium"],e:"Goodwill = acquisition cost − fair value of identifiable net assets; usually zero when the parent founds the subsidiary."},
+ {s:"Why are intra-group receivables and payables offset in consolidation?",c:"Because the group, viewed as one economic entity, cannot owe money to itself",w:["Because they are always immaterial","Because tax law requires it","Because they carry no interest","Because auditors cannot verify them"],e:"Debt consolidation removes internal claims so that only external business events are reported."},
+ {s:"From the 2023 financial year, which Swiss companies must report publicly on non-financial matters (counterproposal to the Responsible Business Initiative)?",c:"Public companies, banks and insurers with ≥500 employees and ≥CHF 20 million total assets or >CHF 40 million turnover",w:["All companies with an ordinary audit","Only companies listed in the SIX main segment","All companies with more than 250 employees"],e:"Scope: public-interest entities with 500+ employees and CHF 20m assets or CHF 40m turnover."},
+ {tf:true,s:"Since 1 January 2024, large Swiss companies in scope must publish TCFD-aligned climate reporting.",e:"The Swiss climate disclosure ordinance requires TCFD-aligned reporting from 2024."},
+ {s:"What is the most important difference between IFRS and US GAAP according to the lecture?",c:"US GAAP is rather rules-based, while IFRS is rather principles-based.",w:["Only IFRS allows fair values as a measurement base.","Only US GAAP allows impairment losses on long-lived assets.","US GAAP is rather principles-based, IFRS rather rules-based."],e:"IFRS is principle-based; US GAAP is rule-based with very extensive guidance."},
+ {s:"What is an advantage of principles-based accounting standards?",c:"They give room for judgment so that financial statements can reflect economic substance.",w:["They remove all accounting policy choices.","They make financial statements identical across companies.","They are always much longer than rules-based standards."],e:"Principles-based standards rely on judgment; rules-based standards give bright lines but less flexibility."},
+ {tf:false,s:"Only a 100% stake allows a parent to fully consolidate a subsidiary.",e:"Control (>50%) is sufficient; the remaining owners are presented as NCI."}
+ ,{tf:true,s:"In consolidated financial statements, all internal transactions are eliminated so that only the group's external business events are reported.",e:"That is the core principle of group accounting."}
+ ,{tf:true,s:"The Swiss Code of Obligations sets out a minimum structure for the balance sheet and income statement and a minimum content for the notes.",e:"CO Art. 957ff. and 959; these rules apply to companies in Switzerland generally."}
+ ,{s:"In a purchase price allocation (PPA), goodwill is:",c:"the amount paid in addition to the fair value of the identifiable net assets acquired",w:["the book value of the subsidiary's equity","the sum of all intangible assets of the subsidiary","the difference between market capitalization and book equity of the parent"],e:"Goodwill = consideration − fair value of identifiable net assets (as in Nestlé's PPA example)."}
+ ,{s:"Where does a non-controlling interest appear in the consolidated financial statements?",c:"In equity (separately from the parent's equity) and as a share of the group's profit",w:["Only in the notes","As a liability and as an expense","Only in the cash flow statement"],e:"NCI in net assets (balance sheet) and NCI in profits (income statement)."}
+]);
+
+var U2=bank("F",[
+ {s:"Which of the following is an <u>external</u> indicator of impairment under IAS 36?",c:"An increase in market interest rates",w:["Evidence of physical damage of the asset","Plans to restructure the operation the asset belongs to","Internal reports show worse economic performance than expected"],e:"External: market value decline, technological/market/legal changes, higher market interest rates, net assets above market capitalization."},
+ {s:"Which of the following is an <u>internal</u> indicator of impairment under IAS 36?",c:"Evidence of obsolescence of the asset",w:["A significant decline in the asset's market value","An increase in market interest rates","The carrying amount of the entity's net assets exceeds its market capitalization"],e:"Internal: obsolescence or damage, restructuring plans, internal reports of worse performance."},
+ {s:"For which asset is an <u>annual impairment test</u> required even without any indication?",c:"Goodwill",w:["A building used by the company","A production machine","Inventory"],e:"Annual tests: goodwill, intangible assets with indefinite useful life, and intangibles not yet available for use."},
+ {s:"What differentiates impairment from depreciation?",c:"Impairment is an extraordinary loss in the value of an asset.",w:["Impairment is recognized when the recoverable amount is higher than the carrying amount.","Impairment refers mainly to current assets such as receivables.","Impairment is the systematic expensing of an asset's cost over its useful life."],e:"Depreciation is systematic; impairment is an extraordinary write-down when carrying amount > recoverable amount."},
+ {s:"Under IAS 36, an asset is impaired when its carrying amount exceeds:",c:"the higher of fair value less costs of disposal and value in use",w:["the lower of fair value less costs of disposal and value in use","its historical cost","the sum of undiscounted future cash flows"],e:"Recoverable amount = max(FVLCD, VIU)."},
+ {s:"Which element is <u>not</u> part of the IFRS 16 definition of a lease?",c:"Transfer of legal ownership at the end of the lease term",w:["The right to use an underlying asset","For a period of time","In exchange for consideration"],e:"A lease conveys the right to use an asset for a period of time in exchange for consideration."},
+ {s:"Which statement about IFRS 16 is <u>false</u>?",c:"For the lessor, the distinction between finance and operating leases was eliminated.",w:["The lessee recognizes a right-of-use asset and a lease liability.","For the lessee, the classification into finance and operating lease is eliminated.","The lessee's lease expense consists of depreciation and interest.","For the lessor there are no changes except enhanced disclosures."],e:"IFRS 16 changed lessee accounting; lessor accounting stayed largely the same."},
+ {tf:true,s:"Under IAS 17, operating leases were only disclosed in the notes, and the income statement showed a lease expense.",e:"That 'off-balance-sheet' treatment is what IFRS 16 removed (effective 1 January 2019)."},
+ {s:"A finance lease is a lease that:",c:"transfers substantially all the risks and rewards incidental to ownership",w:["lasts longer than 12 months","is cancellable at any time","is only disclosed in the notes"],e:"Finance lease: substantially all risks and rewards transferred; operating lease: any other lease."},
+ {s:"With the introduction of IFRS 16, reported debt on lessees' balance sheets has mostly:",c:"increased",w:["decreased","stayed the same","become zero for operating leases"],e:"Lease liabilities are now recognized for (almost) all leases."},
+ {tf:true,s:"Under IFRS, expenditures on research are expensed, while development expenditures are capitalized.",e:"Internally generated intangibles: research expensed, development capitalized (when criteria are met)."},
+ {s:"How are identifiable intangible assets acquired in a business combination recognized?",c:"At fair value; any excess of the purchase price is recorded as goodwill",w:["At the seller's carrying amount","Not at all, they are included in goodwill","At the cost the seller originally paid"],e:"Identifiable assets at fair value; the remainder of the price is goodwill."},
+ {s:"In a <u>defined benefit</u> pension plan, the actuarial and investment risk lies with:",c:"the entity (employer)",w:["the employees","the state","the fund's beneficiaries only"],e:"DB: the entity promises benefits and bears the risks. DC: risks lie with the employee."},
+ {s:"Which statement about <u>defined contribution</u> plans is correct?",c:"The entity's obligation is limited to the contributions it agreed to pay.",w:["The entity must make up any shortfall in the fund.","The entity bears the investment risk.","Employees receive a guaranteed pension amount."],e:"DC: fixed contributions, no further obligation; actuarial and investment risk with the employee."},
+ {s:"Which of the following is a financial instrument?",c:"Derivatives held for trading",w:["Provisions for tax risks","Goodwill","Inventory"],e:"A financial instrument gives rise to a financial asset of one entity and a financial liability/equity instrument of another."},
+ {s:"Which of the following is <u>not</u> a financial asset under IAS 32?",c:"Inventory",w:["Cash","An equity instrument of another entity","A contractual right to receive cash from another entity"],e:"Financial assets: cash, equity instruments of other entities, contractual rights to receive cash or financial assets."},
+ {s:"A debt instrument has cash flows that are solely payments of principal and interest and is held in a 'hold to collect' business model. It is measured at:",c:"amortised cost",w:["fair value through OCI","fair value through profit or loss","historical cost without any remeasurement"],e:"SPPI + hold to collect → amortised cost; hold to collect and sell → FVOCI; otherwise FVTPL."},
+ {s:"A debt instrument with SPPI cash flows is held in a 'hold to collect and sell' business model. It is measured at:",c:"fair value through OCI",w:["amortised cost","fair value through profit or loss","the lower of cost and market"],e:"SPPI + hold to collect and sell → FVOCI."},
+ {s:"How are most financial liabilities measured after initial recognition?",c:"At amortised cost using the effective interest method",w:["At fair value through profit or loss","At their nominal value without interest","At fair value through OCI"],e:"Most financial liabilities: amortised cost; derivatives and fair-value-option liabilities: FVTPL."},
+ {s:"A bond's coupon rate is <u>higher</u> than the market interest rate at issuance. The bond is issued:",c:"above face value (at a premium)",w:["below face value (at a discount)","at exactly face value","at zero"],e:"Investors pay more for above-market coupons; the carrying amount then declines toward face value."},
+ {s:"For tax purposes, property, plant and equipment is recognized at 150; in the consolidated financial statements at 300. This creates:",c:"a deferred tax liability",w:["a deferred tax asset","no deferred taxes, because it is a permanent difference","a current tax receivable"],e:"Asset: group value > tax value → deferred tax liability."},
+ {s:"From the group's perspective a litigation provision of 93 is appropriate, but none is recognized in the tax accounts. This creates:",c:"a deferred tax asset",w:["a deferred tax liability","no deferred taxes","a current tax liability"],e:"Liability: group value > tax value → deferred tax asset."},
+ {s:"Which statement about IFRS 18 is <u>false</u>?",c:"The share of profit of equity-accounted investees is presented within operating profit.",w:["IFRS 18 replaces IAS 1.","It introduces operating, investing and financing categories in the income statement.","Management-defined performance measures must be disclosed and are subject to audit.","It is effective from 1 January 2027, with earlier adoption permitted."],e:"Equity-accounted results now always belong to the investing category, outside operating profit."},
+ {s:"Which two new subtotals does IFRS 18 require in the income statement?",c:"Operating profit and profit before financing and income tax",w:["EBITDA and EBIT","Gross margin and contribution margin","Net income and comprehensive income"],e:"IFRS 18 adds 'operating profit' and 'profit before financing and income tax'."},
+ {s:"Which statement about IFRS 18 is correct?",c:"Goodwill is presented as a new separate line item on the face of the balance sheet.",w:["The statement of cash flows is completely redesigned.","Management-defined performance measures may no longer be published.","Income taxes are presented within the financing category.","It only applies to US-listed companies."],e:"IFRS 18: goodwill as separate line item; only limited changes to the cash flow statement; MPMs disclosed and audited."},
+ {tf:false,s:"Goodwill is amortized on a straight-line basis under IFRS.",e:"Under IFRS, goodwill is tested for impairment at least annually; it is not amortized."}
+ ,{s:"A right-of-use asset represents:",c:"the lessee's right to use an underlying asset for the lease term",w:["the lessor's ownership of the asset","the present value of the lessor's receivable","the residual value of the asset at the end of the lease"],e:"IFRS 16 definition of the right-of-use asset."}
+ ,{tf:true,s:"IFRS 16 became effective on 1 January 2019.",e:"IFRS 16 replaced IAS 17 from 1 January 2019."}
+ ,{tf:true,s:"Permanent differences between tax and group values do not lead to deferred taxes.",e:"Only temporary differences create deferred tax assets or liabilities."}
+ ,{tf:false,s:"Under IFRS 18, management-defined performance measures capture all non-GAAP measures a company uses.",e:"MPMs capture some, but not all, non-GAAP measures."}
+ ,{s:"Value in use (IAS 36) is:",c:"the present value of the future cash flows expected from the asset",w:["the price that would be received when selling the asset","the historical cost less accumulated depreciation","the sum of undiscounted future cash flows"],e:"VIU discounts expected future cash flows; FVLCD is the selling price less disposal costs."}
+]);
+
+var AU=bank("A",[
+ {s:"According to the lecture, auditing is best defined as:",c:"the accumulation and evaluation of evidence to determine and report on the correspondence between information and established criteria, performed by a competent, independent person",w:["the preparation of the financial statements by an external expert","a guarantee that the financial statements contain no errors","the evaluation of management's strategy by the board"],e:"Auditing: evidence, established criteria, competent and independent person."},
+ {s:"According to ISA 200, the purpose of an audit is to:",c:"enhance the degree of confidence of intended users in the financial statements",w:["detect all fraud in the company","prepare the financial statements","guarantee the company's future solvency"],e:"The auditor expresses an opinion on whether the FS are prepared, in all material respects, under the applicable framework."},
+ {tf:false,s:"An audit provides absolute assurance that the financial statements are free from material misstatement.",e:"Reasonable assurance is high, but not a guarantee."},
+ {s:"Which is <u>not</u> a reason for the need for auditing (information risk) given in the lecture?",c:"Auditors prepare the financial statements for management.",w:["Managers have different interests and may present the company in the best light.","Financial statements are complex and technical.","There is information asymmetry between the company and outsiders."],e:"Reasons: different interests, complexity, information asymmetry; credibility reduces information risk."},
+ {s:"Which part of an annual report is typically <u>not</u> audited?",c:"The CEO letter / management report",w:["The balance sheet","The cash flow statement","The notes to the financial statements"],e:"The financial statements including notes are audited; descriptive reports such as the CEO letter are not."},
+ {s:"Which of the following is <u>not</u> a trigger for an ordinary audit under the Swiss CO?",c:"The company has more than 50 employees.",w:["The company's shares are listed on a stock exchange.","The company has bonds outstanding.","The company is required to prepare consolidated accounts."],e:"Ordinary audit: public companies, economically significant companies (2 of 3 thresholds in 2 consecutive years), and companies obliged to consolidate."},
+ {s:"A company may opt out of the audit if:",c:"it has no more than 10 full-time positions on annual average and all shareholders agree",w:["it has fewer than 250 employees","the board of directors decides so","its revenue is below CHF 40 million"],e:"Opting out: ≤10 FTE and consent of all shareholders."},
+ {s:"Which statement about the Swiss <u>limited audit</u> is <u>false</u>?",c:"Attending the inventory count is required.",w:["The auditor only needs to be an approved auditor.","The conclusion is formulated negatively.","A summary report is submitted to the general meeting.","Bookkeeping support by the auditor is allowed with safeguards."],e:"Inventory counts, third-party confirmations and the ICS existence check are ordinary-audit requirements only."},
+ {s:"Which is required in an <u>ordinary</u> audit but not in a limited audit?",c:"Confirming the existence of an internal control system",w:["A summary report to the general meeting","An approved auditor","A negatively formulated conclusion"],e:"Ordinary audit: approved audit expert, third-party confirmations, inventory count, ICS existence check, positive opinion, comprehensive report to the board."},
+ {s:"Which statement about reporting in the Swiss ordinary audit is correct?",c:"The auditor submits a comprehensive report to the board and a summary report to the general meeting.",w:["Only a summary report to the general meeting is required.","The report is formulated negatively.","No report to the board is required.","Only listed companies receive a report."],e:"Ordinary audit: comprehensive report to the board plus summary report to the AGM; positive formulation."},
+ {s:"Under CO Art. 728, which situation is <u>compatible</u> with auditor independence?",c:"The audit fee is agreed at market conditions.",w:["The lead auditor's spouse is the company's CFO.","The auditor holds a significant stake in the client.","The auditor accepts valuable gifts from the client.","An employee of the audit firm sits on the client's board."],e:"Incompatible: board membership, significant stakes or claims, close relationships, self-review, economic dependence, non-market contracts, valuable gifts."},
+ {s:"An audit firm prepares the accounting records it audits later. Under CO Art. 728 this is problematic mainly because:",c:"the auditor would have to review its own work",w:["the fee would be too low","the auditor would become economically dependent","it would be a close family relationship"],e:"Involvement in accounting creates a self-review risk."},
+ {s:"Under Swiss law, rotation in an ordinary audit applies to:",c:"the person leading the audit, after 7 years",w:["the audit firm, after 7 years","the audit firm, after 10 years","nobody; rotation is voluntary"],e:"CO Art. 730a: individual (lead auditor) rotation after 7 years; the EU requires audit firm rotation."},
+ {tf:true,s:"The EU approach requires mandatory rotation of the audit firm, while Switzerland requires rotation of the lead auditor.",e:"Swiss approach: individual rotation; EU: firm rotation."},
+ {s:"Which factor is associated with <u>lower</u> audit fees?",c:"A change of auditor",w:["A larger number of foreign subsidiaries","A higher share of inventory and receivables in total assets","Reporting under IFRS or US GAAP","Engaging a Big 4 firm"],e:"Fees rise with size, complexity, foreign subsidiaries, Big 4, IFRS/US GAAP and busy season; a change of auditor tends to lower fees."},
+ {s:"Which factor is associated with <u>higher</u> audit fees?",c:"A higher number of foreign subsidiaries",w:["A change of auditor","Fewer subsidiaries","A smaller balance sheet"],e:"Complexity (subsidiaries, foreign operations) increases audit fees."},
+ {s:"Across all Swiss companies, which audit firm has the <u>largest number of audit clients</u>?",c:"BDO",w:["PwC","KPMG","EY"],e:"BDO (about 6,400 clients) ahead of PwC; among listed companies the Big 4 dominate."},
+ {tf:true,s:"In 2024, most Swiss companies that had their sustainability information assured obtained only limited assurance, i.e. a negative-form conclusion.",e:"87 of 89 assured reports had limited assurance."},
+ {s:"Which statement about assurance of sustainability information in Switzerland (2020–2024) is correct?",c:"Larger companies are more likely to obtain external assurance.",w:["Fewer reports were assured in 2024 than in 2020.","Mid-tier firms hold about 85% of the assurance market.","Most assured reports received reasonable assurance."],e:"Assurance rose from 29 to 89 firms; Big 4 hold ~85%; mostly limited assurance; size is a determinant."},
+ {s:"Liggio (1974) defined the audit expectation gap as the difference between:",c:"the levels of expected performance as envisioned by the independent accountant and by the users of financial statements",w:["audit fees and non-audit fees","materiality and performance materiality","the auditor's and management's estimates","the static and flexible budget"],e:"Expectation gap: what users expect vs what auditors see as their role."},
+ {s:"Which is a Swiss regulatory reaction to accounting scandals mentioned in the lecture?",c:"The Swiss Audit Supervision Act (RAG)",w:["The Sarbanes-Oxley Act","IFRS 18","The Dodd-Frank Act"],e:"USA: Sarbanes-Oxley Act. Switzerland: CO changes and the Audit Supervision Act (RAG)."},
+ {s:"Communicating with the predecessor auditor and obtaining an engagement letter belong to which audit phase?",c:"Client acceptance",w:["Planning","Testing and evidence","Evaluation and judgement"],e:"Phase 1, client acceptance: evaluate client, ethics, need for other professionals, predecessor, proposal, staffing, engagement letter."},
+ {s:"Determining materiality and assessing the risks of material misstatement belong to which audit phase?",c:"Planning",w:["Client acceptance","Testing and evidence","Evaluation and judgement"],e:"Phase 2, planning: understand the entity and its internal control, assess risks, determine materiality, prepare the audit programme."},
+ {s:"Performing procedures to identify subsequent events belongs to which audit phase?",c:"Evaluation and judgement",w:["Client acceptance","Planning","Testing and evidence"],e:"Phase 4: governance evidence, subsequent events, review, wrap-up, reporting, audit report."},
+ {s:"Which procedure is a <u>test of controls</u>?",c:"Re-performing the client's approval procedure for purchase invoices",w:["Confirming receivable balances directly with customers","Comparing this year's gross margin with prior years","Searching for unrecorded liabilities"],e:"Tests of controls: inquiry, examining documents, observing control activities, re-performing client procedures."},
+ {s:"Which of the following is a <u>substantive</u> procedure?",c:"Tests of details of ending balances",w:["Observing control-related activities","Making inquiries about who approves payments","Re-performing a client control procedure"],e:"Substantive procedures: substantive tests of transactions, analytical procedures, tests of details of balances."},
+ {s:"Which statement about going concern is correct?",c:"Management must assess the entity's ability to continue as a going concern; the auditor obtains evidence on the appropriateness of that assumption.",w:["The auditor guarantees that the entity will continue as a going concern.","Going concern is only relevant for listed companies.","Financial statements are always prepared on a liquidation basis."],e:"Absence of a going-concern reference is not a guarantee of the entity's future."},
+ {tf:false,s:"If the auditor's report does not mention any going-concern uncertainty, this guarantees the entity will continue as a going concern.",e:"The auditor cannot predict future events (ISA 570)."},
+ {s:"According to the lecture, which situation can lead to a <u>disclaimer of opinion</u>?",c:"The auditor is not independent.",w:["The financial statements are materially and pervasively misstated.","A misstatement below materiality was not corrected.","A material going-concern uncertainty is adequately disclosed."],e:"Disclaimer: unable to form an opinion, or auditor not independent. Pervasive misstatement → adverse."},
+ {tf:true,s:"The adverse opinion is the rarest type of audit opinion.",e:"Adverse opinions are issued for material and pervasive misstatements and are rare (e.g. LumX Group 2019)."},
+ {s:"Which statement about Key Audit Matters is correct?",c:"Under ISA 701 they have been required for listed companies in Switzerland since 2016.",w:["Reporting a KAM modifies the audit opinion.","They are required in every limited audit.","They replace the opinion paragraph."],e:"KAMs give insight into significant judgements; they do not modify the opinion."},
+ {s:"Which are the most common Key Audit Matters in Swiss companies according to the lecture?",c:"Goodwill accounting and revenue recognition",w:["Cash and petty cash","Share capital and treasury shares","Office rent and utilities"],e:"Goodwill (impairment) and revenue recognition are the main current KAM topics."},
+ {s:"What does the UK go further than ISA 701 in requiring?",c:"Disclosing how materiality was applied, including a materiality threshold for the financial statements as a whole",w:["Mandatory adverse opinions for loss-making firms","Audit firm rotation every 3 years","Publishing the audit working papers"],e:"ISA (UK) 700: risks with greatest effect, application of materiality, audit scope."},
+ {s:"Which statement about the Swiss audit market of listed companies is correct?",c:"The market is highly concentrated, and long audit tenures are common.",w:["Mid-tier firms audit most listed companies.","Firm rotation after 7 years is mandatory.","Average tenure is below 2 years."],e:"High concentration (Big 4), average tenure about 11 years, some mandates longer than 20 years."}
+ ,{s:"Which procedure belongs to the <u>testing and evidence</u> phase of the audit?",c:"Searching for unrecorded liabilities",w:["Obtaining an engagement letter","Determining materiality","Identifying subsequent events","Preparing the client proposal"],e:"Phase 3: tests of controls, substantive tests of transactions, analytical procedures, tests of details of balances, search for unrecorded liabilities."}
+ ,{s:"Which is <u>not</u> a condition for an unmodified audit opinion listed in the lecture?",c:"The company was profitable in the year under audit.",w:["All statements and required disclosures are included.","Sufficient appropriate evidence has been accumulated.","The financial statements are presented fairly in accordance with the applicable framework.","No circumstances require an emphasis-of-matter paragraph or a modified wording."],e:"Profitability is irrelevant to the opinion; fair presentation and sufficient evidence are what count."}
+ ,{s:"According to the lecture, a <u>qualified opinion</u> is issued when:",c:"the financial statements are fairly presented overall, but the audit scope was materially restricted or a standard was not followed",w:["the financial statements are not fairly presented","the auditor is unable to form any opinion","the auditor is not independent","there are no findings at all"],e:"Qualified: overall fair but with a material scope restriction or departure. Adverse: not fairly presented. Disclaimer: no opinion possible or not independent."}
+ ,{tf:true,s:"Non-audit fees are an important revenue stream for audit firms and can create a threat to auditor independence.",e:"The lecture lists non-audit fees and market concentration among independence issues."}
+ ,{tf:true,s:"In a Swiss limited audit, bookkeeping support by the auditor is allowed if safeguards are in place.",e:"Ordinary audit: rotation; limited audit: independence required, bookkeeping support allowed with safeguards (CO Art. 729)."}
+ ,{s:"An ordinary audit provides ______ assurance, a limited audit ______ assurance.",c:"reasonable; limited",w:["limited; reasonable","absolute; reasonable","reasonable; absolute","limited; no"],e:"Ordinary audit: reasonable assurance, positive opinion. Limited audit: limited assurance, negative formulation."}
+ ,{tf:true,s:"Evidence for tests of details of balances is usually obtained from a source independent of the client.",e:"Substantive tests of details focus on the monetary correctness of ending balances, often using external evidence."}
+ ,{s:"In the Three Lines Model, internal audit is the:",c:"third line, providing independent assurance",w:["first line, owning and managing risks","second line, for risk management and compliance","external line, issuing the statutory audit opinion"],e:"First line: operational management. Second: risk management/compliance. Third: internal audit."}
+ ,{s:"Which phrase best describes an <u>unmodified</u> audit opinion?",c:"A 'green light': the financial statements are fairly presented in all material respects.",w:["The auditor could not complete the audit.","The financial statements contain a material but isolated misstatement.","The financial statements are not fairly presented."],e:"Unmodified (unqualified) = green light; modified opinions are qualified, adverse or disclaimer."}
+ ,{tf:true,s:"Among Swiss listed companies, audit tenures are long: the average tenure is about 11 years, and some mandates exceed 20 years.",e:"Swiss Audit Monitor: average tenure 11.1 years; 30% of SMI firms have tenures above 20 years."}
+]);
+
+/* =================== CONTROLLING QUESTIONS =================== */
+var CT={};
+/* Q1 pool */
+CT.cogsflow=function(g){
+  var co=g.pick(COS),dmb=g.step(20000,60000,1000),pur=g.step(200000,500000,1000),dme=g.step(20000,60000,1000),dl=g.step(100000,300000,1000),moh=g.step(80000,250000,1000),wb=g.step(30000,90000,1000),we=g.step(30000,90000,1000),fb=g.step(50000,120000,1000),fe=g.step(50000,120000,1000),mk=g.step(20000,80000,1000),di=g.step(10000,40000,1000);
+  if(we===wb)we+=3000;if(fe===fb)fe+=4000;if(dme===dmb)dme+=2000;
+  var used=dmb+pur-dme,mfg=used+dl+moh,cogm=mfg+wb-we,cogs=cogm+fb-fe,ask=g.chance(0.65);
+  var c=ask?cogs:cogm,ds=ask?[cogm,mfg,cogm-fb+fe,(pur+dl+moh)+wb-we+fb-fe,cogs+mk+di]:[mfg,cogs,mfg-wb+we,pur+dl+moh+wb-we];
+  var res=numMC(g,c,ds,C);
+  var stem=P(co+" reports the following figures for the year:")+tbl(["Item","CHF"],[["Direct materials inventory, 1 Jan",num(dmb)],["Direct materials purchases",num(pur)],["Direct materials inventory, 31 Dec",num(dme)],["Direct manufacturing labor",num(dl)],["Manufacturing overhead",num(moh)],["Work-in-process, 1 Jan / 31 Dec",num(wb)+" / "+num(we)],["Finished goods, 1 Jan / 31 Dec",num(fb)+" / "+num(fe)],["Marketing costs",num(mk)],["Distribution costs",num(di)]],[1])+P("What is the <u>"+(ask?"cost of goods sold":"cost of goods manufactured")+"</u>?");
+  var w=["DM used = "+num(dmb)+" + "+num(pur)+" − "+num(dme)+" = "+num(used),"Manufacturing costs incurred = "+num(used)+" + "+num(dl)+" + "+num(moh)+" = "+num(mfg),"COGM = "+num(mfg)+" + "+num(wb)+" − "+num(we)+" = "+num(cogm)];if(ask)w.push("COGS = "+num(cogm)+" + "+num(fb)+" − "+num(fe)+" = "+num(cogs));
+  return QC("Cost concepts & CVP",stem,res,"<div>Follow the flow of costs: materials → WIP → finished goods → COGS. Marketing and distribution are period costs.</div>"+calc(w));
+};
+CT.aftertax=function(g){
+  var co=g.pick(COS),p=g.step(40,160,5),c=g.pick([0.05,0.1]),vr=g.pick([0.4,0.45,0.5,0.55,0.6]),vm=r2(p*(vr-c)),cm=1-vr;
+  var FCm=g.step(60000,300000,1000),FCa=g.step(20000,120000,1000),FC=FCm+FCa,t=g.pick([0.2,0.25]),NI=g.step(20000,150000,t===0.25?3000:4000),TOI=NI/(1-t),rev=(FC+TOI)/cm;
+  var res=numMC(g,rev,[(FC+NI)/cm,(FC+TOI)/(1-vm/p),FC/cm,(FCm+TOI)/cm],C);
+  var stem=P(co+" sells one product for "+C(p)+". Variable manufacturing cost is "+C(vm,2)+" per unit, and a sales commission of "+num(c*100,0)+"% of the selling price is paid on every unit. Fixed manufacturing costs are "+C(FCm)+" and fixed administrative costs "+C(FCa)+". The tax rate is "+num(t*100,0)+"%.")+P("Which <u>revenue</u> is needed to earn a <u>net income after tax of "+C(NI)+"</u>? <i>(Round to whole CHF.)</i>");
+  return QC("Cost concepts & CVP",stem,res,"<div>Convert the after-tax target into operating income, then divide by the contribution margin ratio (which includes the commission).</div>"+calc(["Variable cost per unit = "+num(vm,2)+" + "+num(c*100,0)+"% × "+num(p)+" = "+num(p*vr,2)+" → CM ratio = "+pct(cm,1),"Target OI = "+num(NI)+" / (1 − "+num(t*100,0)+"%) = "+num(TOI),"Revenue = ("+num(FC)+" + "+num(TOI)+") / "+num(cm,3)+" = "+num(rev)]));
+};
+CT.dol=function(g){
+  var co=g.pick(COS),D=g.pick([2,2.5,3,4,5]),FC=g.step(120000,900000,60000),CM=FC*D/(D-1),OI=CM-FC;
+  if(g.chance(0.55)){
+    var gr=g.pick([5,8,10,12,15,20])/100,up=g.chance(0.7),f=up?1+gr:1-gr,n=CM*f-FC;
+    var res=numMC(g,n,[OI*f,CM*f,OI+(f-1)*FC,OI*(1+(f-1)*(D-1))],C);
+    var stem=P(co+" budgets annual fixed costs of "+C(FC)+". At the budgeted sales volume, the degree of operating leverage is "+num(D,1)+".")+P("If sales volume "+(up?"rises":"falls")+" by "+num(gr*100,0)+"% (price and cost structure unchanged), what will <u>operating income</u> be?");
+    return QC("Cost concepts & CVP",stem,res,"<div>Work out contribution margin and operating income first: DOL = CM / OI = CM / (CM − FC).</div>"+calc(["CM = DOL/(DOL − 1) × FC = "+num(CM),"OI = "+num(CM)+" − "+num(FC)+" = "+num(OI),"New OI = "+num(CM)+" × "+num(f,2)+" − "+num(FC)+" = "+num(n)+"  (check: OI changes by DOL × "+num(gr*100,0)+"% = "+num(D*gr*100,0)+"%)"]));
+  }
+  var Q=g.step(1200,24000,1200),be=Q*(1-1/D);
+  var res2=numMC(g,be,[Q/D,Q*(1-1/(D+1)),Q-Q/(2*D),FC/D],function(x){return num(Math.round(x))+" units";});
+  var stem2=P(co+" budgets sales of "+num(Q)+" units. Fixed costs are "+C(FC)+", and at the budgeted volume the degree of operating leverage is "+num(D,1)+".")+P("What is the <u>break-even point in units</u>?");
+  return QC("Cost concepts & CVP",stem2,res2,"<div>Margin of safety ratio = 1 / DOL.</div>"+calc(["Margin of safety = "+num(Q)+" / "+num(D,1)+" = "+num(Q/D)+" units","Break-even = "+num(Q)+" − "+num(Q/D)+" = "+num(be)+" units"]));
+};
+function cvpBase(g){
+  var p=g.ri(20,90),vt=p*g.u(0.35,0.65),DM=r2(vt*0.5),DL=r2(vt*0.25),VOH=r2(vt*0.12),SC=r2(vt-DM-DL-VOH);
+  return {p:p,DM:DM,DL:DL,VOH:VOH,SC:SC,v:r2(DM+DL+VOH+SC),FC:g.step(60000,400000,1000),co:g.pick(COS)};
+}
+function cvpTable(b){return tbl(["","CHF"],[["Selling price per unit",num(b.p,2)],["Direct materials per unit",num(b.DM,2)],["Direct manufacturing labor per unit",num(b.DL,2)],["Variable manufacturing overhead per unit",num(b.VOH,2)],["Variable selling costs per unit",num(b.SC,2)],["Annual fixed costs",num(b.FC,2)]],[1]);}
+CT.breakeven=function(g){
+  var b=cvpBase(g),cm=r2(b.p-b.v),rev=g.chance(0.5);
+  if(rev){var c=b.FC/(cm/b.p);var res=numMC(g,c,[b.FC/((b.p-b.DM-b.DL-b.VOH)/b.p),b.FC/(b.v/b.p),Math.ceil(b.FC/cm),b.FC/cm*b.v],C);
+    return QC("Cost concepts & CVP",P(b.co+" sells one product:")+cvpTable(b)+P("What is the <u>break-even revenue</u>? <i>(Round to whole CHF.)</i>"),res,calc(["CM ratio = 1 − "+num(b.v,2)+" / "+num(b.p,2)+" = "+num(cm/b.p,4),"Break-even revenue = "+num(b.FC)+" / "+num(cm/b.p,4)+" = "+num(c)]));}
+  var be=Math.ceil(b.FC/cm),u=function(x){return num(Math.ceil(x))+" units";};
+  var r2s=numMC(g,be,[b.FC/b.p,b.FC/(b.p-b.DM-b.DL),b.FC/b.v,b.FC/(b.p-b.DM-b.DL-b.VOH)],u);
+  return QC("Cost concepts & CVP",P(b.co+" sells one product:")+cvpTable(b)+P("What is the <u>break-even point in units</u>? <i>(Round up to whole units.)</i>"),r2s,calc(["CM per unit = "+num(b.p,2)+" − "+num(b.v,2)+" = "+num(cm,2)+" (includes variable selling costs)","Break-even = "+num(b.FC)+" / "+num(cm,2)+" = "+num(b.FC/cm,1)+" → "+num(be)]));
+};
+CT.pricecut=function(g){
+  var b=cvpBase(g),Q=g.step(5000,40000,500),k=g.pick([5,10,12,15,20]),drop=k/100*b.p*Q,nOI=(b.p*(1-k/100)-b.v)*Q-b.FC;
+  var res=numMC(g,drop,[k/100*(b.p-b.v)*Q,k/100*b.v*Q,nOI,k/100*(b.p*Q-b.FC)],C);
+  return QC("Cost concepts & CVP",P(b.co+" sells one product:")+cvpTable(b)+P("If the company lowers its selling price by "+k+"% and still sells "+num(Q)+" units, by how much is <u>operating income reduced</u>?"),res,"<div>Volume and costs are unchanged, so operating income falls by the lost revenue.</div>"+calc([k+"% × "+num(b.p,2)+" × "+num(Q)+" = "+num(drop)]));
+};
+CT.costFalse=function(g){var it=pickFresh(g,CB,1,["mgmt","cvp"])[0];return conceptC(g,it,"Cost concepts & CVP");};
+
+/* Q2 ABC case */
+function abcCase(g){
+  var co=g.pick(COS),nm=g.pick([["Standard","Premium"],["Basic","Pro"],["City","Trail"],["Classic","Signature"],["Compact","Deluxe"]]),tr=g.pick(["Mold cleaning","Tool maintenance","Quality testing"]);
+  var uA=g.step(20000,80000,10000),uB=g.step(5000,20000,5000),dmA=g.ri(10,40),dmB=dmA+g.ri(10,40),dlA=g.ri(8,20),dlB=dlA+g.ri(2,12);
+  var hA=g.pick([0.5,0.6,0.75,1]),hB=g.pick([0.5,0.6,0.75,1]),HA=uA*hA,HB=uB*hB;
+  var r1=g.step(1000,6000,500),qA=g.ri(20,60),qB=g.ri(30,90),r2_=g.step(80,300,10),sA=g.step(500,2000,100),sB=g.step(800,3000,100),r3=g.ri(8,30),mA=g.step(10000,60000,1000),mB=g.step(5000,40000,1000),tA=g.step(20000,150000,10000),tB=g.step(20000,150000,10000);
+  var dP=r1*(qA+qB),sP=r2_*(sA+sB),mP=r3*(mA+mB),tot=dP+sP+mP+tA+tB,rate=tot/(HA+HB);
+  var ohA=r1*qA+r2_*sA+r3*mA+tA,ohB=r1*qB+r2_*sB+r3*mB+tB;
+  var abcA=dmA+dlA+ohA/uA,abcB=dmB+dlB+ohB/uB,trA=dmA+dlA+hA*rate,trB=dmB+dlB+hB*rate;
+  var intro=P(co+" makes two products, "+nm[0]+" and "+nm[1]+":")+tbl(["",nm[0],nm[1]],[["Units produced",num(uA),num(uB)],["Direct materials per unit",C(dmA),C(dmB)],["Direct manufacturing labor per unit",C(dlA),C(dlB)],["Direct labor-hours (total)",num(HA),num(HB)]],[1,2])+
+    P("Manufacturing overhead totals "+C(tot)+":")+tbl(["Activity pool","Cost (CHF)","Cost driver",nm[0],nm[1]],[["Design",num(dP),"parts-square-feet",num(qA),num(qB)],["Setups",num(sP),"setup-hours",num(sA),num(sB)],["Manufacturing operations",num(mP),"machine-hours",num(mA),num(mB)],[tr,num(tA+tB),"see note","",""]],[1,3,4])+
+    P("<i>Note: in the ABC system, "+tr.toLowerCase()+" is reclassified as a direct cost because it can be traced to each product: "+nm[0]+" "+C(tA)+", "+nm[1]+" "+C(tB)+".</i> The current traditional system allocates all overhead using direct labor-hours.");
+  var f2=function(x){return C(x,2);};
+  var q1=numMC(g,abcB,[trB,abcB-tB/uB,abcB-dlB,dmB+dlB+(dP/2+sP/2+mP/2+tB)/uB],f2);
+  var s1=QC("Activity-based costing",P("What is the <u>full manufacturing cost per unit of "+nm[1]+" under ABC</u>?"),q1,calc(["Rates: design "+num(r1)+", setups "+num(r2_)+", machine-hours "+num(r3),nm[1]+" overhead = "+num(qB)+"×"+num(r1)+" + "+num(sB)+"×"+num(r2_)+" + "+num(mB)+"×"+num(r3)+" + "+num(tB)+" (traced) = "+num(ohB),"Per unit: "+num(dmB)+" + "+num(dlB)+" + "+num(ohB)+" / "+num(uB)+" = "+num(abcB,2)]));
+  var dA=trA-abcA,dB=trB-abcB,lab=function(d){return (d>0?"overcosted":"undercosted")+" by "+C(Math.abs(d),2);};
+  var opts=[lab(dA),lab(-dA),lab(dB),lab(-dB),lab(dA*2),lab(-(trA-dmA-dlA)),lab(dA/2)],uniq={};opts=opts.filter(function(o){if(uniq[o])return false;uniq[o]=1;return true;}).slice(0,4);
+  var q2o=g.shuffle(opts);q2o.push(NONE);var q2={options:q2o,answer:q2o.indexOf(lab(dA)),correctText:lab(dA)};
+  var s2=QC("Activity-based costing",P("Compared with ABC, the traditional system costs <u>each unit of "+nm[0]+"</u>:"),q2,calc(["Traditional rate = "+num(tot)+" / "+num(HA+HB)+" = "+num(rate,4)+" per DLH","Traditional "+nm[0]+" = "+num(dmA)+" + "+num(dlA)+" + "+num(hA,2)+" × "+num(rate,4)+" = "+num(trA,2),"ABC "+nm[0]+" = "+num(dmA)+" + "+num(dlA)+" + "+num(ohA)+" / "+num(uA)+" = "+num(abcA,2),"Difference = "+num(dA,2)]));
+  var s3,v=g.pick(["setup","diff"]);
+  if(v==="setup"){var x=g.pick([20,25,30,40,50])/100,nb=abcB-x*r2_*sB/uB;var q3=numMC(g,nb,[abcB-x*sP/uB,abcB*(1-x),abcB-x*r2_*sB/uA,abcB-x*r2_*sA/uB],f2);
+    s3=QC("Activity-based costing",P("A redesign cuts the <u>setup-hours of "+nm[1]+" by "+num(x*100,0)+"%</u>; the cost per setup-hour stays the same. What is the new ABC cost per unit of "+nm[1]+"?"),q3,calc(["Saving = "+num(x*100,0)+"% × "+num(sB)+" × "+num(r2_)+" / "+num(uB)+" = "+num(x*r2_*sB/uB,2),"New cost = "+num(abcB,2)+" − "+num(x*r2_*sB/uB,2)+" = "+num(nb,2)]));}
+  else {var dd=ohB-HB*rate;var q4=numMC(g,dd,[-dd,ohB-tB-HB*rate,dB,ohA-HA*rate],function(z){return "CHF "+num(Math.abs(z),0)+(z>0?" more":" less");});
+    s3=QC("Activity-based costing",P("How does the <u>total overhead</u> (including the traced cost) assigned to "+nm[1]+" under ABC compare with the traditional system?"),q4,calc(["ABC: "+num(ohB),"Traditional: "+num(HB)+" × "+num(rate,4)+" = "+num(HB*rate),"Difference = "+num(dd)+" ("+(dd>0?"more":"less")+" under ABC)"]));}
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q3 pricing case */
+function pricingCase(g){
+  var co=g.pick(COS);
+  var Q=g.step(100000,600000,50000),vc=g.ri(8,60),fcu=g.ri(4,25),FC=Q*fcu,roi=g.pick([0.1,0.125,0.2,0.25]),rpu=g.ri(2,12),K=Q*rpu/roi,full=vc+fcu,price=full+rpu,comp=price+g.ri(2,8);
+  var intro=P(co+" produces and sells "+num(Q)+" units of its main product per year. Variable cost is "+C(vc)+" per unit and annual fixed costs are "+C(FC)+". The capital invested in the division is "+C(K)+". Competitors currently sell comparable products for "+C(comp)+".");
+  var s1,mk=g.chance(0.4);
+  if(!mk){var q1=numMC(g,price,[vc+rpu,full*(1+roi),comp,full+roi*full],function(x){return C(x,2);});
+    s1=QC("Pricing",P("Using <u>cost-plus pricing with a target ROI of "+pct(roi,1)+"</u>, what is the selling price per unit?"),q1,calc(["Full cost = "+num(vc)+" + "+num(FC)+" / "+num(Q)+" = "+num(full),"Target return per unit = "+pct(roi,1)+" × "+num(K)+" / "+num(Q)+" = "+num(rpu),"Price = "+num(full)+" + "+num(rpu)+" = "+num(price)]));}
+  else {var m=(FC+roi*K)/(vc*Q);var q1b=numMC(g,m,[roi*K/(vc*Q),(FC+roi*K)/(full*Q),roi,(roi*K)/(full*Q)],function(x){return pct(x,1);});
+    s1=QC("Pricing",P("What <u>markup percentage on variable cost</u> is needed to earn a <u>target ROI of "+pct(roi,1)+"</u>? <i>(Round to one decimal.)</i>"),q1b,calc(["Target operating income = "+pct(roi,1)+" × "+num(K)+" = "+num(roi*K),"Markup = (fixed costs + target OI) / variable costs = ("+num(FC)+" + "+num(roi*K)+") / "+num(vc*Q)+" = "+pct(m,1)]));}
+  var mm=g.pick([0.1,0.15,0.2,0.25]),Pm,tc,red,tries=0;
+  do{Pm=Math.round(full*g.u(0.85,1.1)*10)/10;tc=Pm*(1-mm);red=full-tc;tries++;}while((red<0.5)&&tries<50);
+  if(red<0.5){Pm=Math.round(full*0.9*10)/10;tc=Pm*(1-mm);red=full-tc;}
+  var q2=numMC(g,red,[full*mm,full-Pm,full-(Pm-mm*full),Pm*mm],function(x){return C(x,2);});
+  var s2=QC("Pricing",P("A new competitor forces the price down to <u>"+C(Pm,2)+"</u>. The company wants a <u>target operating margin (ROS) of "+num(mm*100,0)+"%</u>. By how much must the current full cost per unit be reduced?"),q2,calc(["Current full cost = "+num(full,2),"Target cost = "+num(Pm,2)+" × (1 − "+num(mm*100,0)+"%) = "+num(tc,2),"Required reduction = "+num(full,2)+" − "+num(tc,2)+" = "+num(red,2)]));
+  var it=pickFresh(g,CB,1,["price"])[0],s3=conceptC(g,it,"Pricing");
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q4 cash budget case */
+function budgetCase(g){
+  var co=g.pick(COS),m0=g.ri(0,8),ms=[MONTHS[m0],MONTHS[m0+1],MONTHS[m0+2],MONTHS[m0+3]];
+  var pat=g.pick([[30,60,8,2],[40,50,8,2],[20,70,9,1],[50,40,7,3],[25,65,10,0],[35,55,10,0]]);
+  var s=[g.step(80000,300000,1000),g.step(80000,300000,1000),g.step(80000,300000,1000),g.step(80000,300000,1000)];
+  var k=g.pick([50,60,70])/100,x=g.pick([40,50,60])/100;
+  var col=pat[0]/100*s[2]+pat[1]/100*s[1]+pat[2]/100*s[0];
+  var pPrev=k*s[2],pCur=k*s[3],pay=x*pCur+(1-x)*pPrev;
+  var wages=g.step(30000,90000,1000),rent=g.step(8000,25000,1000),dep=g.step(5000,20000,1000),divi=g.step(10000,60000,1000),open=g.step(5000,40000,1000),mn=g.step(15000,40000,1000),mult=g.pick([1000,5000,10000]);
+  var disb=pay+wages+rent+divi,need=mn-(open+col-disb),capex=0;
+  if(need<=mult){capex=Math.round((mult-need)/1000)*1000+g.step(5000,40000,1000);need+=capex;disb+=capex;}
+  var borrow=Math.ceil(need/mult)*mult;
+  var intro=P(co+" makes all sales on credit:")+tbl(["Month",ms[0],ms[1],ms[2],ms[3]+" (forecast)"],[["Sales (CHF)",num(s[0]),num(s[1]),num(s[2]),num(s[3])]],[1,2,3,4])+
+    "<ul><li>Customers pay "+pat[0]+"% in the month of sale, "+pat[1]+"% in the following month and "+pat[2]+"% in the second month after the sale"+(pat[3]?"; "+pat[3]+"% are never collected":"")+".</li><li>Merchandise purchases each month equal "+num(k*100,0)+"% of the <b>next</b> month's sales; "+num(x*100,0)+"% is paid in the month of purchase, the rest in the following month.</li><li>Other "+ms[2]+" items: wages "+C(wages)+", rent "+C(rent)+", depreciation "+C(dep)+", dividend payment "+C(divi)+(capex?", cash purchase of equipment "+C(capex):"")+".</li><li>Cash on 1 "+ms[2]+": "+C(open)+". Minimum ending cash balance: "+C(mn)+". Borrowing happens at the beginning of the month in multiples of "+C(mult)+". Ignore interest.</li></ul>";
+  var q1=numMC(g,col,[pat[0]/100*s[2]+(pat[1]+pat[2])/100*s[1],pat[0]/100*s[2]+pat[1]/100*s[1],pat[0]/100*s[0]+pat[1]/100*s[1]+pat[2]/100*s[2],(pat[0]+pat[3])/100*s[2]+pat[1]/100*s[1]+pat[2]/100*s[0]],C);
+  var s1=QC("Budgeting",P("Cash collected from customers in "+ms[2]+":"),q1,calc([pat[0]+"% × "+num(s[2])+" + "+pat[1]+"% × "+num(s[1])+" + "+pat[2]+"% × "+num(s[0])+" = "+num(col)]));
+  var q2=numMC(g,pay,[pCur,k*s[2],x*k*s[2]+(1-x)*k*s[1],x*pPrev+(1-x)*pCur],C);
+  var s2=QC("Budgeting",P("Cash payments for merchandise in "+ms[2]+":"),q2,calc([ms[2]+" purchases = "+num(k*100,0)+"% × "+num(s[3])+" = "+num(pCur),ms[1]+" purchases = "+num(k*100,0)+"% × "+num(s[2])+" = "+num(pPrev),"Payments = "+num(x*100,0)+"% × "+num(pCur)+" + "+num((1-x)*100,0)+"% × "+num(pPrev)+" = "+num(pay)]));
+  var q3=numMC(g,borrow,[Math.ceil((need+dep)/mult)*mult,Math.ceil((need-mn)/mult)*mult>0?Math.ceil((need-mn)/mult)*mult:mult,borrow+mult,Math.max(borrow-mult,mult)],C,0.1);
+  var s3=QC("Budgeting",P("How much must "+co+" <u>borrow</u> in "+ms[2]+"? <i>(Use your results above.)</i>"),q3,"<div>Depreciation is not a cash outflow.</div>"+calc(["Cash available = "+num(open)+" + "+num(col)+" = "+num(open+col),"Disbursements = "+num(pay)+" + "+num(wages)+" + "+num(rent)+" + "+num(divi)+(capex?" + "+num(capex):"")+" = "+num(disb),"Required = "+num(mn)+" − ("+num(open+col)+" − "+num(disb)+") = "+num(need)+" → borrow "+num(borrow)]));
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q5 direct-cost variance case */
+function directCase(g){
+  var co=g.pick(COS);
+  var q=g.pick([1.5,2,2.5,3,4]),SP=g.pick([4,5,6.5,8,9.5,12]),h=g.pick([0.4,0.5,0.6,0.8,1.2]),SR=g.pick([32,36,38,40,42,45]);
+  var B=g.step(5000,20000,1000),A=B+g.step(-1500,1500,100);if(A===B)A+=300;
+  var SQ=A*q,d=g.step(-1500,1500,10);if(d===0)d=60;var AQ=SQ+d,eff=d*SP;
+  var Pk=AQ+g.step(-500,2000,100);var AP=r2(SP+g.pick([-0.5,-0.3,-0.2,0.2,0.3,0.4,0.6]));var cost=Math.round(AP*Pk);
+  var SH=A*h,AH=Math.round(SH*g.u(0.92,1.08)/10)*10;if(AH===SH)AH+=20;var AR=r2(SR+g.pick([-1.5,-1,-0.5,0.5,1,1.5,2]));var dlc=Math.round(AR*AH);
+  var intro=P(co+" uses standard costing for its main product. Standards per unit: "+num(q,1)+" kg of material at "+C(SP,2)+" per kg and "+num(h,1)+" direct labor-hours at "+C(SR,2)+" per hour. Budgeted output was "+num(B)+" units.")+
+    P("In March the company actually produced <b>"+num(A)+" units</b>. It purchased "+num(Pk)+" kg of material for "+C(cost)+"; the materials price variance is calculated <b>at the time of purchase</b>. The direct materials efficiency variance was "+V(eff)+". Direct labor: "+num(AH)+" hours at a total cost of "+C(dlc)+".");
+  var pv=(AP-SP)*Pk;
+  var q1=numMC(g,pv,[(AP-SP)*AQ,(AP-SP)*SQ,-pv,-(AP-SP)*AQ],V);
+  var s1=QC("Variances",P("Direct materials <u>price variance</u>:"),q1,calc(["Actual price = "+num(cost)+" / "+num(Pk)+" = "+num(AP,2),"(AP − SP) × quantity purchased = ("+num(AP,2)+" − "+num(SP,2)+") × "+num(Pk)+" = "+num(pv)]));
+  var q2=numMC(g,AQ,[SQ,Pk,SQ-d,B*q],function(x){return num(x)+" kg";});
+  var s2=QC("Variances",P("How many kg of material were actually <u>used</u>?"),q2,calc(["Standard quantity allowed = "+num(A)+" × "+num(q,1)+" = "+num(SQ),"Efficiency variance / SP = "+num(Math.abs(eff))+" / "+num(SP,2)+" = "+num(Math.abs(d))+" kg "+(d>0?"more":"less")+" than standard ("+(d>0?"U":"F")+")","Actual quantity used = "+num(AQ)]));
+  var fb=dlc-SR*SH,effL=(AH-SH)*SR,rate=dlc-SR*AH;
+  var q3=numMC(g,fb,[effL,rate,dlc-SR*h*B,-fb],V);
+  var s3=QC("Variances",P("<u>Flexible-budget variance</u> for direct manufacturing labor:"),q3,calc(["Flexible budget = "+num(A)+" × "+num(h,1)+" h × "+num(SR,2)+" = "+num(SR*SH),"Flexible-budget variance = "+num(dlc)+" − "+num(SR*SH)+" = "+num(fb),"(= rate variance "+num(rate)+" + efficiency variance "+num(effL)+")"]));
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q6 overhead case */
+function ohCase(g){
+  var co=g.pick(COS),vr=g.ri(8,40),fr=g.ri(10,45),DH=g.step(10000,50000,1000),h=g.pick([0.5,1,1.5,2,2.5]);
+  var Q=Math.round(DH/h*g.u(0.82,1.12)/10)*10,SH=Q*h;if(SH===DH){Q+=40;SH=Q*h;}
+  var AH=Math.round(SH*g.u(0.92,1.08)/100)*100;if(AH===SH)AH+=200;
+  var ar=r2(vr+g.pick([-1.2,-0.8,-0.5,0.4,0.5,0.75,1.1])),AVO=Math.round(ar*AH),FB=fr*DH,AFO=FB+g.step(-30000,40000,1000);if(AFO===FB)AFO+=5000;
+  var intro=P(co+" allocates manufacturing overhead using machine-hours (MH).")+tbl(["","Budget / standard","Actual"],[["Variable overhead",C(vr)+" per MH",C(AVO)],["Fixed overhead",C(FB)+" (denominator "+num(DH)+" MH)",C(AFO)],["Machine-hours","standard "+num(h,1)+" MH per unit",num(AH)+" MH"],["Output","",num(Q)+" units"]]);
+  var vs=AVO-AH*vr,ve=(AH-SH)*vr;
+  var q1=numMC(g,vs,[-vs,AVO-SH*vr,(ar-vr)*SH,ve],V);
+  var s1=QC("Overhead variances",P("Variable overhead <u>spending</u> variance:"),q1,calc(["Spending = actual VOH − AH × budgeted rate = "+num(AVO)+" − "+num(AH)+" × "+num(vr)+" = "+num(vs)]));
+  var q2=numMC(g,ve,[-ve,(AH-DH)*vr,vs+ve,(AH-SH)*fr],V);
+  var s2=QC("Overhead variances",P("Variable overhead <u>efficiency</u> variance:"),q2,calc(["Standard MH allowed = "+num(Q)+" × "+num(h,1)+" = "+num(SH),"Efficiency = ("+num(AH)+" − "+num(SH)+") × "+num(vr)+" = "+num(ve)]));
+  var alloc=SH*fr,pvv=FB-alloc,fs=AFO-FB,tot=AFO-alloc;
+  var st=function(t,p,lbl){return (t>0?"Underallocated":"Overallocated")+" by "+C(Math.abs(t))+", of which "+C(Math.abs(p))+" "+(p>0?"U":"F")+" is the "+lbl+".";};
+  var corr=st(tot,pvv,"production-volume variance"),allocA=AH*fr;
+  var cand=[st(pvv,fs,"spending variance"),st(-tot,-pvv,"production-volume variance"),st(AFO-allocA,FB-allocA,"production-volume variance"),st(tot,fs,"production-volume variance")];
+  var seen={};seen[corr]=1;var wr=cand.filter(function(c){if(seen[c])return false;seen[c]=1;return true;}).slice(0,3);
+  var o=g.shuffle([corr].concat(wr));o.push(NONE);var q3={options:o,answer:o.indexOf(corr),correctText:corr};
+  var s3=QC("Overhead variances",P("Which statement about <u>fixed overhead</u> is correct?"),q3,calc(["Fixed rate = "+num(FB)+" / "+num(DH)+" = "+num(fr)+" per MH","Allocated = "+num(SH)+" × "+num(fr)+" = "+num(alloc),"Production-volume variance = "+num(FB)+" − "+num(alloc)+" = "+num(pvv)+(pvv>0?" U":" F"),"Spending variance = "+num(AFO)+" − "+num(FB)+" = "+num(fs)+(fs>0?" U":" F"),"Total = "+num(AFO)+" − "+num(alloc)+" = "+num(tot)+(tot>0?" underallocated":" overallocated")]));
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q7 capital budgeting case */
+function capCase(g){
+  var co=g.pick(COS),I,WC,n,r,Sv,dep,CF,f,NPV,ok=false,tries=0;
+  while(!ok&&tries<60){tries++;
+    I=g.step(200000,1500000,10000);WC=g.step(10000,100000,5000);n=g.ri(3,5);r=g.pick([0.06,0.08,0.1,0.12]);
+    Sv=g.step(0,Math.round(I*0.2/10000)*10000,10000);var dpr=Math.round((I-Sv)/n/1000)*1000;Sv=I-dpr*n;dep=dpr;
+    if(Sv<0)continue;CF=Math.round(dep*g.u(1.25,1.75)/1000)*1000;
+    f=[];for(var t=1;t<=n;t++)f.push(r4(Math.pow(1+r,-t)));
+    var pvs=f.map(function(x){return CF*x;}),sumpv=pvs.reduce(function(a,b){return a+b;},0);
+    NPV=-(I+WC)+sumpv+(Sv+WC)*f[n-1];
+    ok=Math.abs(NPV)>2000;}
+  var pvCF=f.map(function(x){return CF*x;}),sum=pvCF.reduce(function(a,b){return a+b;},0);
+  var intro=P(co+" buys a machine for "+C(I)+" and must invest "+C(WC)+" in working capital at t₀, which is fully recovered at the end of year "+n+". The machine generates net cash inflows of "+C(CF)+" per year for "+n+" years and can be sold for "+C(Sv)+" at the end of year "+n+". Depreciation is straight-line down to the disposal value. The required rate of return is "+num(r*100,0)+"%.")+
+    tbl(["Year"].concat(f.map(function(x,i){return String(i+1);})),[["Discount factor ("+num(r*100,0)+"%)"].concat(f.map(function(x){return num(x,4);}))],f.map(function(x,i){return i+1;}));
+  var q1=numMC(g,NPV,[-I+sum+Sv*f[n-1],-(I+WC)+sum,-(I+WC)+sum+Sv*f[n-1],-(I+WC)+CF*n+Sv+WC],function(x){return C(Math.round(x));});
+  var s1=QC("Capital budgeting",P("<u>NPV</u> of the project (use the factors in the table; round to whole CHF):"),q1,calc(["PV of operating inflows = "+num(CF)+" × "+num(f.reduce(function(a,b){return a+b;},0),4)+" = "+num(sum),"PV of terminal flows = ("+num(Sv)+" + "+num(WC)+") × "+num(f[n-1],4)+" = "+num((Sv+WC)*f[n-1]),"NPV = −"+num(I+WC)+" + "+num(sum)+" + "+num((Sv+WC)*f[n-1])+" = "+num(NPV)]));
+  var aarr=(CF-dep)/I;
+  var q2=numMC(g,aarr,[CF/I,(CF-dep)/(I+WC),(CF-dep)/((I+Sv)/2),(CF-I/n)/I],function(x){return pct(x,1);});
+  var s2=QC("Capital budgeting",P("<u>AARR</u> based on the initial investment (cost of the machine only; ignore working capital):"),q2,calc(["Depreciation = ("+num(I)+" − "+num(Sv)+") / "+n+" = "+num(dep),"Net income = "+num(CF)+" − "+num(dep)+" = "+num(CF-dep),"AARR = "+num(CF-dep)+" / "+num(I)+" = "+pct(aarr,1)]));
+  var d=pvCF.slice();d[n-1]+= (Sv+WC)*f[n-1];var cum=0,dp=null;for(var i=0;i<n;i++){if(cum+d[i]>=I+WC){dp=i+(I+WC-cum)/d[i];break;}cum+=d[i];}
+  var s3;
+  if(dp!==null&&Math.abs(dp*10-Math.round(dp*10))<0.45){
+    var q3=numMC(g,Math.round(dp*10)/10,[(I+WC)/CF,I/CF,n,Math.round(dp*10)/10+0.3],function(x){return num(x,1)+" years";});
+    var cl=[];var cc=0;for(i=0;i<n;i++){cc+=d[i];cl.push("Y"+(i+1)+" "+num(d[i])+" (cum. "+num(cc)+")");}
+    s3=QC("Capital budgeting",P("<u>Discounted payback period</u>, including the disposal value and working capital recovery in year "+n+" (cash flows occur evenly within a year; round to one decimal):"),q3,calc(["Discounted flows: "+cl.join("; "),"Payback = "+Math.floor(dp)+" + "+num(I+WC-(function(){var c=0;for(var j=0;j<Math.floor(dp);j++)c+=d[j];return c;})())+" / "+num(d[Math.floor(dp)])+" = "+num(dp,2)+" ≈ "+num(dp,1)+" years"]));
+  } else {
+    var sp=(I+WC)/CF;var q3b=numMC(g,sp,[I/CF,(I+WC)/(CF-dep),n,(I+WC-Sv)/CF],function(x){return num(x,1)+" years";});
+    s3=QC("Capital budgeting",P("<u>Payback period</u> (undiscounted) of the total initial investment including working capital (round to one decimal):"),q3b,calc(["("+num(I)+" + "+num(WC)+") / "+num(CF)+" = "+num(sp,2)+" ≈ "+num(sp,1)+" years"]));
+  }
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+/* Q9 performance case */
+function perfCase(g){
+  var A,B,rrr,tries=0,conflict=false;
+  function div(){var TA=g.step(2000000,10000000,100000),to=g.pick([0.8,1,1.25,1.5,2]),ros=g.pick([0.06,0.08,0.1,0.12,0.15,0.16]),CL=Math.round(TA*g.u(0.1,0.3)/100000)*100000;return {TA:TA,rev:TA*to,ros:ros,OI:Math.round(TA*to*ros),CL:CL};}
+  do{A=div();B=div();rrr=g.pick([0.08,0.1,0.12,0.14]);tries++;
+    var rA=A.OI/A.TA,rB=B.OI/B.TA,iA=A.OI-rrr*A.TA,iB=B.OI-rrr*B.TA;conflict=(rA-rB)*(iA-iB)<0&&Math.abs(rA-rB)>0.005&&Math.abs(iA-iB)>5000;}while(!conflict&&tries<300);
+  var nm=g.pick([["Alpine","Lakeside"],["North","South"],["Retail","Industrial"],["Zurich","Geneva"]]),wacc=r2(rrr-0.02),tax=g.pick([0.15,0.2,0.25]);
+  var intro=P("Required rate of return "+pct(rrr,0)+", WACC "+pct(wacc,0)+", tax rate "+pct(tax,0)+".")+tbl(["",nm[0]+" division",nm[1]+" division"],[["Revenue",num(A.rev),num(B.rev)],["Operating income",num(A.OI),num(B.OI)],["Total assets",num(A.TA),num(B.TA)],["Current liabilities",num(A.CL),num(B.CL)]],[1,2]);
+  var roiA=A.OI/A.TA,tgt=Math.round((roiA+g.pick([0.02,0.03,0.04,0.05]))*100)/100,s1;
+  if(g.chance(0.55)){var rv=tgt/A.ros*A.TA;var q1=numMC(g,rv,[A.rev*tgt/roiA*1.1,tgt*A.TA,A.rev*(1+tgt-roiA),A.TA*(A.rev/A.TA+tgt-roiA)],C);
+    s1=QC("Performance management",P(nm[0]+" wants an <u>ROI of "+pct(tgt,0)+"</u> by increasing capital turnover; its return on sales and total assets stay unchanged. What <u>revenue</u> does it need?"),q1,calc(["ROS = "+num(A.OI)+" / "+num(A.rev)+" = "+pct(A.ros,0),"Required turnover = "+pct(tgt,0)+" / "+pct(A.ros,0)+" = "+num(tgt/A.ros,4),"Revenue = "+num(tgt/A.ros,4)+" × "+num(A.TA)+" = "+num(rv)]));}
+  else {var red=A.TA-A.OI/tgt;var q1b=numMC(g,red,[A.TA*(tgt-roiA),A.TA-A.OI/(roiA+tgt),A.OI/tgt,A.TA*(1-roiA/tgt)*0.9],C);
+    s1=QC("Performance management",P(nm[0]+" wants an <u>ROI of "+pct(tgt,0)+"</u> by reducing total assets while operating income stays the same. By how much must total assets fall?"),q1b,calc(["Required assets = "+num(A.OI)+" / "+pct(tgt,0)+" = "+num(A.OI/tgt),"Reduction = "+num(A.TA)+" − "+num(A.OI/tgt)+" = "+num(red)]));}
+  var rA2=A.OI/A.TA,rB2=B.OI/B.TA,iA2=A.OI-rrr*A.TA,iB2=B.OI-rrr*B.TA;
+  var hiROI=rA2>rB2?nm[0]:nm[1],hiRI=iA2>iB2?nm[0]:nm[1],lo=function(x){return x===nm[0]?nm[1]:nm[0];};
+  var stm=function(a,b){return a===b?a+" has the higher ROI and the higher RI.":a+" has the higher ROI, but "+b+" has the higher RI.";};
+  var corr=stm(hiROI,hiRI),o=g.shuffle([corr,stm(lo(hiROI),lo(hiRI)),stm(hiROI,lo(hiRI)),stm(lo(hiROI),hiRI)]);o.push(NONE);
+  var s2=QC("Performance management",P("Using total assets as the investment base, which statement is correct?"),{options:o,answer:o.indexOf(corr),correctText:corr},calc(["ROI: "+nm[0]+" "+pct(rA2,1)+", "+nm[1]+" "+pct(rB2,1),"RI: "+nm[0]+" "+num(A.OI)+" − "+pct(rrr,0)+" × "+num(A.TA)+" = "+num(iA2)+"; "+nm[1]+" "+num(B.OI)+" − "+pct(rrr,0)+" × "+num(B.TA)+" = "+num(iB2)]));
+  var X=g.chance(0.5)?A:B,xn=X===A?nm[0]:nm[1],eva=X.OI*(1-tax)-wacc*(X.TA-X.CL);
+  var q3=numMC(g,eva,[X.OI-wacc*(X.TA-X.CL),X.OI*(1-tax)-wacc*X.TA,X.OI*(1-tax)-rrr*(X.TA-X.CL),X.OI-rrr*X.TA],C);
+  var s3=QC("Performance management",P("What is the <u>EVA</u> of the "+xn+" division?"),q3,calc(["After-tax OI = "+num(X.OI)+" × (1 − "+pct(tax,0)+") = "+num(X.OI*(1-tax)),"Capital = "+num(X.TA)+" − "+num(X.CL)+" = "+num(X.TA-X.CL),"EVA = "+num(X.OI*(1-tax))+" − "+pct(wacc,0)+" × "+num(X.TA-X.CL)+" = "+num(eva)]));
+  return {intro:intro,qs:[s1,s2,s3]};
+}
+
+/* =================== A&A QUESTIONS =================== */
+function equityQ(g){
+  var co=g.sample(COS,2),P0=g.step(200,900,10),s=g.pick([20,25,30,35,40,45])/100,p1=g.step(40,240,10),dv=Math.round(p1*g.u(0.3,0.8)/10)*10,p2=g.step(-120,200,10);if(p2===0)p2=-40;
+  var end=P0+s*p1-s*dv+s*p2,f=function(x){return "CHF "+num(x,1,"'")+"k";};
+  var res=aaNum(g,end,[P0+s*p1+s*p2,P0+s*p1-s*dv,P0+s*p1+s*dv+s*p2,P0+s*p1-dv+s*p2],f);
+  return QA("Consolidation",P("On 1 Jan Y1, "+co[0]+" buys "+num(s*100,0)+"% of "+co[1]+" for CHF "+num(P0,0,"'")+"k and gains significant influence. "+co[1]+" earns a profit of CHF "+num(p1,0,"'")+"k in Y1. In Y2 it pays a dividend of CHF "+num(dv,0,"'")+"k out of the Y1 profit and reports a "+(p2<0?"loss of CHF "+num(-p2,0,"'")+"k":"profit of CHF "+num(p2,0,"'")+"k")+".")+P("What is the carrying amount of the investment on 31 Dec Y2?"),res,"<div>Equity method: add the share of profits (or deduct losses) and deduct the share of dividends received.</div>"+calc([num(P0)+" + "+num(s*100,0)+"% × ("+num(p1)+" − "+num(dv)+" + ("+num(p2)+")) = "+num(end,1)]));
+}
+function consCase(g){
+  var par=g.pick(["Helvetia Holding AG","NordTech AG","Rigi Industries AG","Alpine Group AG"]),sub=g.pick(["Alpina Tech AG","BioLino AG","Sensora AG","Fluvia AG","Kristall AG"]);
+  var s=g.pick([55,60,65,70,75,80,90])/100,SC=g.step(200000,1000000,50000),RS=g.step(100000,900000,50000),E=SC+RS,H=g.step(50000,400000,10000),GW=g.step(150000,1500000,10000),NA=E+H,price=Math.round(s*NA/1000)*1000+GW,gw=price-s*NA,nci=(1-s)*NA;
+  var intro=P("On 31.12.2025, "+par+" acquires <b>"+num(s*100,0)+"%</b> of "+sub+" for <b>"+S(price)+"</b> in cash. "+sub+"'s equity consists of share capital "+S(SC)+" and reserves "+S(RS)+". Its land contains <b>hidden reserves of "+S(H)+"</b>. NCI is measured at its proportionate share of the revalued net assets (purchased goodwill method). Ignore deferred taxes.");
+  var q1=aaNum(g,gw,[price-s*E,price-NA,price/s-NA],S);
+  var a=QA("Consolidation",P("Goodwill recognized on the acquisition:"),q1,calc(["Revalued net assets = "+num(E,0,"'")+" + "+num(H,0,"'")+" = "+num(NA,0,"'"),"Goodwill = "+num(price,0,"'")+" − "+num(s*100,0)+"% × "+num(NA,0,"'")+" = "+num(gw,0,"'")]));
+  var q2=aaNum(g,nci,[(1-s)*E,s*NA,(1-s)*price],S);
+  var b=QA("Consolidation",P("Non-controlling interest at the acquisition date:"),q2,calc(["NCI = "+num((1-s)*100,0)+"% × "+num(NA,0,"'")+" = "+num(nci,0,"'")]));
+  var c;
+  if(g.chance(0.6)){
+    var X=g.step(50000,400000,10000),m=g.pick([20,25,30,40])/100,fr=g.pick([25,40,50,60,75])/100,up=g.chance(0.5),L=g.step(100000,800000,50000),el=X*fr*m;
+    var corr="Unrealized profit of "+S(el)+" must be eliminated from inventory.";
+    var w=["Unrealized profit of "+S(X*m)+" must be eliminated from inventory.","The loan stays in consolidated receivables because it carries market interest.","Only "+num(s*100,0)+"% of the intercompany sale is eliminated from revenue, matching "+par+"'s stake.","Unrealized profit of "+S(X*fr)+" must be eliminated from inventory."];
+    var sw={};sw[corr]=1;w=w.filter(function(x){if(sw[x])return false;sw[x]=1;return true;});
+    var r=aaTxt(g,corr,w);
+    c=QA("Consolidation",P("In 2026, "+(up?sub+" sells goods to "+par:par+" sells goods to "+sub)+" for "+S(X)+" at a gross margin of "+num(m*100,0)+"% on the selling price; "+num(fr*100,0)+"% of the goods are still in the buyer's inventory at year-end. "+par+" also has a loan receivable of "+S(L)+" from "+sub+" at market interest. Which statement about the 2026 consolidated statements is correct?"),r,calc(["Unrealized profit = "+num(X,0,"'")+" × "+num(fr*100,0)+"% × "+num(m*100,0)+"% = "+num(el,0,"'"),"The loan is eliminated (debt consolidation); intercompany revenue is eliminated in full."]));
+  } else {
+    var pr=g.step(80000,600000,10000),sh=(1-s)*pr;
+    var q3=aaNum(g,sh,[s*pr,(1-s)*NA,0],S);
+    c=QA("Consolidation",P(sub+" reports a net profit of "+S(pr)+" for 2026 (no intercompany transactions). Which amount of this profit is attributable to the <u>non-controlling interest</u> in the consolidated income statement?"),q3,calc(["NCI share = "+num((1-s)*100,0)+"% × "+num(pr,0,"'")+" = "+num(sh,0,"'")+". 100% of the profit is consolidated; NCI is shown separately."]));
+  }
+  return {intro:intro,qs:[a,b,c]};
+}
+var FRC={
+  lease:function(g){
+    var A=g.step(20000,250000,1000),n=g.ri(3,6),r=g.pick([0.04,0.05,0.06,0.08]),AF=0;for(var t=1;t<=n;t++)AF+=Math.pow(1+r,-t);AF=r4(AF);
+    var L=A*AF,v=g.pick(["init","int","end","rou"]),c,ds,q,w=["Lease liability at start = "+num(A,0,"'")+" × "+num(AF,4)+" = "+num(L,0,"'")];
+    if(v==="init"){c=L;ds=[A*n,A*n/(1+r),L*(1+r)];q="initial lease liability";}
+    else if(v==="int"){c=L*r;ds=[A*r,A*n*r,(A*n-L)/n];q="interest expense in year 1";w.push("Interest = "+num(L,0,"'")+" × "+num(r*100,0)+"% = "+num(L*r,0,"'"));}
+    else if(v==="end"){c=L*(1+r)-A;ds=[L-A,L*(n-1)/n,A*(n-1)];q="lease liability at the end of year 1";w.push("End of year 1 = "+num(L,0,"'")+" + interest "+num(L*r,0,"'")+" − payment "+num(A,0,"'")+" = "+num(c,0,"'"));}
+    else {c=L*(n-1)/n;ds=[L*(1+r)-A,L-A,A*(n-1)];q="carrying amount of the right-of-use asset at the end of year 1 (straight-line depreciation over the lease term)";w.push("ROU = "+num(L,0,"'")+" × "+(n-1)+"/"+n+" = "+num(c,0,"'"));}
+    var res=aaNum(g,c,ds,function(x){return S(Math.round(x));});
+    return QA("Financial reporting",P("On 1 January, a lessee signs a "+n+"-year lease with payments of "+S(A)+" at the end of each year; the interest rate is "+num(r*100,0)+"% (annuity factor for "+n+" years: "+num(AF,4)+"). The lessee applies IFRS 16.")+P("What is the <u>"+q+"</u>? <i>(Round to whole CHF.)</i>"),res,calc(w));
+  },
+  impair:function(g){
+    var r=g.pick([0.08,0.1,0.12]),cf=[g.step(40000,150000,1000),g.step(40000,150000,1000),g.step(40000,150000,1000)],f=[1,2,3].map(function(t){return r4(Math.pow(1+r,-t));});
+    var viu=cf[0]*f[0]+cf[1]*f[1]+cf[2]*f[2],fv=Math.round(viu*g.u(0.85,1.12)/1000)*1000,cd=g.step(5000,25000,1000),fl=fv-cd,rec=Math.max(viu,fl),CA=Math.round(rec*g.u(1.08,1.3)/1000)*1000,loss=CA-rec;
+    var res=aaNum(g,loss,[CA-Math.min(viu,fl),CA-fv,CA-(cf[0]+cf[1]+cf[2])>0?CA-(cf[0]+cf[1]+cf[2]):0.0001],function(x){return x<1?"No impairment loss":S(Math.round(x));});
+    return QA("Financial reporting",P("A machine has a carrying amount of "+S(CA)+". Expected net cash flows for the next three years are "+S(cf[0])+", "+S(cf[1])+" and "+S(cf[2])+" (discount factors at "+num(r*100,0)+"%: "+f.map(function(x){return num(x,4);}).join(", ")+"). It could be sold for "+S(fv)+", with disposal costs of "+S(cd)+".")+P("What is the <u>impairment loss</u>? <i>(Round to whole CHF.)</i>"),res,calc(["Value in use = "+num(viu,0,"'"),"FVLCD = "+num(fv,0,"'")+" − "+num(cd,0,"'")+" = "+num(fl,0,"'"),"Recoverable amount = higher = "+num(rec,0,"'"),"Impairment = "+num(CA,0,"'")+" − "+num(rec,0,"'")+" = "+num(loss,0,"'")]));
+  },
+  deftax:function(g){
+    var cost,n,d,k,t,fa,tx,tries=0;
+    do{cost=g.step(200000,1500000,50000);n=g.pick([4,5]);d=g.pick([0.3,0.4,0.5]);k=g.ri(1,3);t=g.pick([0.18,0.2,0.21,0.25]);fa=cost*(1-k/n);tx=cost*Math.pow(1-d,k);tries++;}while(fa<=tx+1000&&tries<50);
+    var dtl=(fa-tx)*t,fK=cost*(1-(k+1)/n),tK=cost*Math.pow(1-d,k+1);
+    var corr="Deferred tax liability of "+S(Math.round(dtl)),w=["Deferred tax asset of "+S(Math.round(dtl)),"Deferred tax liability of "+S(Math.round(fa*t)),"Deferred tax liability of "+S(Math.round(Math.abs(fK-tK)*t)),"No deferred taxes (permanent difference)"];
+    var seen={};seen[corr]=1;w=w.filter(function(x){if(seen[x])return false;seen[x]=1;return true;});
+    var res=aaTxt(g,corr,w);
+    return QA("Financial reporting",P("A machine bought on 1 Jan Y1 for "+S(cost)+" is depreciated straight-line over "+n+" years (no residual value) in the IFRS accounts. For tax purposes it is depreciated at "+num(d*100,0)+"% of the tax book value each year. The tax rate is "+num(t*100,0)+"%.")+P("What is the deferred tax position on <u>31 Dec Y"+k+"</u>?"),res,calc(["IFRS carrying amount = "+num(cost,0,"'")+" × (1 − "+k+"/"+n+") = "+num(fa,0,"'"),"Tax value = "+num(cost,0,"'")+" × (1 − "+num(d*100,0)+"%)^"+k+" = "+num(tx,0,"'"),"Asset: group value > tax value → DTL = "+num(fa-tx,0,"'")+" × "+num(t*100,0)+"% = "+num(dtl,0,"'")]));
+  },
+  bond:function(g){
+    var cp=g.pick([0.04,0.05,0.06,0.065,0.07]),mk=g.pick([0.03,0.04,0.05,0.055,0.06,0.075,0.08]);if(mk===cp)mk=cp+0.01;var n=g.ri(3,6),F=g.pick([50,100,200]);
+    var pr=0;for(var t=1;t<=n;t++)pr+=cp*F/Math.pow(1+mk,t);pr+=F/Math.pow(1+mk,n);
+    var v=g.pick(["issue","int","end"]),c,ds,q,w=["Carrying amount at issue = PV of coupons and face value at "+num(mk*100,1)+"% = "+num(pr,2)];
+    if(v==="issue"){c=pr;ds=[F,F*(1+cp-mk),F-(pr-F)];q="carrying amount at issue";}
+    else if(v==="int"){c=pr*mk;ds=[cp*F,mk*F,pr*cp];q="interest expense in year 1";w.push("Interest expense = "+num(pr,2)+" × "+num(mk*100,1)+"% = "+num(pr*mk,2));}
+    else {c=pr*(1+mk)-cp*F;ds=[pr,pr*(1+cp)-mk*F,F];q="carrying amount at the end of year 1";w.push("End of year 1 = "+num(pr,2)+" + "+num(pr*mk,2)+" − coupon "+num(cp*F,2)+" = "+num(c,2));}
+    var res=aaNum(g,c,ds,function(x){return "CHF "+num(x,2,"'")+"m";});
+    return QA("Financial reporting",P("A company issues CHF "+F+"m face value, "+n+"-year bonds with an annual coupon of "+num(cp*100,1)+"%. At issuance the market interest rate is "+num(mk*100,1)+"%. The bonds are measured at amortised cost using the effective interest method.")+P("What is the <u>"+q+"</u>? <i>(CHF million, two decimals.)</i>"),res,calc(w));
+  }
+};
+function auditThreshold(g){
+  var co=g.pick(COS),type=g.pick(["limited","ordinary","opt","listed"]),y=[2023,2024,2025],rows,ans,ex;
+  function fig(ta,rv,fte){return {ta:ta,rv:rv,fte:fte};}
+  if(type==="ordinary"){rows=[fig(g.ri(12,19),g.ri(25,39),g.ri(150,240)),fig(g.ri(21,40),g.ri(25,39),g.ri(255,400)),fig(g.ri(21,40),g.ri(41,70),g.ri(150,240))];ans="Ordinary audit";ex="2024 and 2025 each exceed two of the three thresholds (assets > CHF 20m with FTE > 250 in 2024; assets and revenue in 2025) → two successive years → ordinary audit.";}
+  else if(type==="limited"){rows=[fig(g.ri(12,19),g.ri(25,39),g.ri(150,240)),fig(g.ri(21,40),g.ri(25,39),g.ri(255,400)),fig(g.ri(21,40),g.ri(25,39),g.ri(150,240))];ans="Limited audit";ex="Two thresholds were exceeded only in 2024, not in two successive years → limited audit.";}
+  else if(type==="opt"){rows=[fig(g.ri(1,5),g.ri(2,9),g.ri(3,9)),fig(g.ri(1,5),g.ri(2,9),g.ri(3,9)),fig(g.ri(1,5),g.ri(2,9),g.ri(3,10))];ans="No audit, if all shareholders agree (opting out)";ex="At most 10 FTE on annual average and consent of all shareholders allow opting out.";}
+  else {rows=[fig(g.ri(2,8),g.ri(4,12),g.ri(20,60)),fig(g.ri(2,8),g.ri(4,12),g.ri(20,60)),fig(g.ri(2,8),g.ri(4,12),g.ri(20,60))];ans="Ordinary audit";ex="The company has bonds outstanding, so it is a public company → ordinary audit regardless of size.";}
+  var info=type==="listed"?"is not listed, but has a bond outstanding":"is not listed, has no bonds outstanding and no subsidiaries";
+  if(type==="opt")info+="; all shareholders have agreed to waive the audit";
+  var opts=["Ordinary audit","Limited audit","No audit, if all shareholders agree (opting out)","Limited audit, but opting out is possible if the board of directors agrees"];
+  var o=g.shuffle(opts);var res={options:o,answer:o.indexOf(ans),correctText:ans};
+  return QA("Auditing",P(co+" "+info+". Key figures:")+tbl(["","2023","2024","2025"],[["Total assets"].concat(rows.map(function(r){return "CHF "+r.ta+"m";})),["Revenue"].concat(rows.map(function(r){return "CHF "+r.rv+"m";})),["Full-time positions (avg.)"].concat(rows.map(function(r){return String(r.fte);}))],[1,2,3])+P("Which audit applies for 2025?"),res,"<div>Thresholds: total assets CHF 20m, revenue CHF 40m, 250 FTE; two of three in two successive years. "+ex+"</div>");
+}
+function auditOpinion(g){
+  var acct=g.pick(["inventory","goodwill","receivables","provisions","revenue"]),sc=g.pick(["adverse","qualifiedM","qualifiedS","disclaimer","gc"]),txt,ans,ex;
+  if(sc==="adverse"){txt="The auditor finds that "+acct+" is materially misstated and the misstatement affects many areas of the financial statements (pervasive). Management refuses to correct it.";ans="Adverse opinion";ex="Material and pervasive misstatement → adverse.";}
+  else if(sc==="qualifiedM"){txt="The auditor finds a material misstatement in "+acct+" that is limited to that account (not pervasive). Management refuses to correct it.";ans="Qualified opinion";ex="Material but not pervasive → qualified ('except for').";}
+  else if(sc==="qualifiedS"){txt="The auditor could not obtain sufficient evidence for one material but isolated balance ("+acct+"); all other areas are fairly presented.";ans="Qualified opinion";ex="Material scope limitation that is not pervasive → qualified.";}
+  else if(sc==="disclaimer"){txt="Records for "+acct+" and several other major areas were destroyed, and the auditor cannot obtain sufficient appropriate evidence; the possible effects are material and pervasive.";ans="Disclaimer of opinion";ex="Unable to form an opinion (pervasive scope limitation) → disclaimer.";}
+  else {txt="There is a material uncertainty about the company's ability to continue as a going concern, which management discloses adequately in the notes.";ans="Unmodified opinion with a section on the material going-concern uncertainty";ex="Adequate disclosure → opinion stays unmodified, with a separate going-concern section.";}
+  var opts=["Adverse opinion","Qualified opinion","Disclaimer of opinion","Unmodified opinion with a section on the material going-concern uncertainty"];
+  var o=g.shuffle(opts);return QA("Auditing",P(txt)+P("Which audit opinion is appropriate?"),{options:o,answer:o.indexOf(ans),correctText:ans},"<div>"+ex+"</div>");
+}
+
+/* =================== BUILD =================== */
+var CTRL_POINTS=[[2,2,3],[3,2,2],[3,2,2],[2,2,3],[2,2,3],[2,2,3],[3,2,2],[1,2,2],[2,2,2]];
+function buildCtrl(g){
+  var blocks=[];
+  var first=g.sample(["cogsflow","aftertax","breakeven","costFalse"],2),third=g.pick(["dol","pricecut"]);
+  var q1=first.concat([third]).map(function(k){return CT[k](g);});
+  blocks.push({title:"Question 1",topic:"Cost concepts & CVP",qs:q1});
+  var cases=[["Question 2","Activity-based costing",abcCase],["Question 3","Pricing",pricingCase],["Question 4","Budgeting",budgetCase],["Question 5","Direct-cost variances",directCase],["Question 6","Overhead variances",ohCase],["Question 7","Capital budgeting",capCase]];
+  cases.forEach(function(c){var r=c[2](g);blocks.push({title:c[0],topic:c[1],intro:r.intro,qs:r.qs});});
+  var q8=pickFresh(g,CB,3,["bsc","budget","mgmt","var","abc","cap","perf"]).map(function(it){return conceptC(g,it,"Performance management");});
+  blocks.push({title:"Question 8",topic:"Concepts: budgeting, BSC & management accounting",qs:q8});
+  var r9=perfCase(g);blocks.push({title:"Question 9",topic:"Performance measures",intro:r9.intro,qs:r9.qs});
+  blocks.forEach(function(b,i){b.qs.forEach(function(q,j){q.pts=CTRL_POINTS[i][j];q.label=(i+1)+"."+(j+1);});b.pts=CTRL_POINTS[i].reduce(function(a,c){return a+c;},0);});
+  return blocks;
+}
+function buildAA(g){
+  var b1=pickFresh(g,U1,3).map(function(it){return conceptA(g,it,"Consolidation & standards");});b1.push(equityQ(g));b1=g.shuffle(b1);
+  b1.push(conceptA(g,pickFresh(g,U2,1)[0],"Financial reporting"));
+  var b2=pickFresh(g,U2,4).map(function(it){return conceptA(g,it,"Financial reporting");});
+  var cc=consCase(g);
+  var b4=g.sample(Object.keys(FRC),3).map(function(k){return FRC[k](g);});
+  var aud=pickFresh(g,AU,12).map(function(it){return conceptA(g,it,"Auditing");});
+  aud.splice(g.ri(0,12),0,auditThreshold(g));aud.splice(g.ri(0,13),0,auditOpinion(g));
+  var blocks=[{title:"Questions 1–5",topic:"Standards, consolidation & reporting",qs:b1},{title:"Questions 6–9",topic:"Financial reporting",qs:b2},{title:"Questions 10–12",topic:"Consolidation case",intro:cc.intro,qs:cc.qs},{title:"Questions 13–15",topic:"Financial reporting calculations",qs:b4},{title:"Questions 16–20",topic:"Auditing",qs:aud.slice(0,5)},{title:"Questions 21–25",topic:"Auditing",qs:aud.slice(5,10)},{title:"Questions 26–29",topic:"Auditing",qs:aud.slice(10,14)}];
+  var n=0;blocks.forEach(function(b){b.qs.forEach(function(q){n++;q.label=String(n);q.pts=n===10?2:1;});b.pts=b.qs.reduce(function(a,q){return a+q.pts;},0);});
+  return blocks;
+}
+function buildExam(seed,part,avoidList){
+  var g=makeRng(seed*7919+101);g.avoid={};(avoidList||[]).forEach(function(id){g.avoid[id]=1;});g.used={};g.ids=[];
+  var ctrl=buildCtrl(g),aa=buildAA(g),parts=[];
+  if(part!=="aa")parts.push({id:"ctrl",title:"Part 1 – Controlling",unit:"points",note:"Multiple choice A–E. E) means none of A)–D) is correct.",blocks:ctrl});
+  if(part!=="ctrl")parts.push({id:"aa",title:"Part 2 – Accounting & Auditing",unit:"marks",note:"One answer per question (a–d or True/False). All 1 mark except Q10 (2 marks).",blocks:aa});
+  var all=[];parts.forEach(function(p){p.blocks.forEach(function(b){b.qs.forEach(function(q){q.id=p.id+"-"+q.label;q.part=p.id;all.push(q);});});});
+  return {seed:seed,part:part,parts:parts,questions:all,itemIds:g.ids};
+}
+
+
+/* =================== UI =================== */
+(function(){
+  var state={seed:0,part:"full",exam:null,answers:{},checked:false};
+  var $=function(id){return document.getElementById(id);};
+  function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
+  function key(){return "aca2-"+state.seed+"-"+state.part;}
+  function save(){ls(key(),{a:state.answers,c:state.checked});}
+  function seen(){return ls("aca2-seen")||[];}
+  function avoidFor(seed){var snap=ls("aca2-avoid-"+seed);if(snap)return snap;snap=seen();ls("aca2-avoid-"+seed,snap);return snap;}
+  function parseHash(){var m=/^#exam-(\d{4,6})(?:-(full|ctrl|aa))?$/.exec(location.hash||"");return m?{seed:+m[1],part:m[2]||"full"}:null;}
+  function setHash(){var h="#exam-"+state.seed+"-"+state.part;if(location.hash!==h){try{history.replaceState(null,"",h);}catch(e){}}}
+  function newSeed(){return 10000+Math.floor(Math.random()*90000);}
+  function letter(q,i){if(q.options.length===2)return i?"F":"T";return q.style==="ctrl"?String.fromCharCode(65+i):String.fromCharCode(97+i);}
+  function ptsLabel(q){return q.style==="ctrl"?q.pts+(q.pts===1?" point":" points"):q.pts+(q.pts===1?" mark":" marks");}
+  function render(){
+    state.exam=buildExam(state.seed,state.part,avoidFor(state.seed));
+    document.querySelectorAll(".seg button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.part===state.part));});
+    $("examNo").textContent="Exam no. "+state.seed;
+    var h="";
+    state.exam.parts.forEach(function(p){
+      var pts=0,n=0;p.blocks.forEach(function(b){b.qs.forEach(function(q){pts+=q.pts;n++;});});
+      h+="<section class='part'><h2>"+p.title+" <span class='ptot'>("+pts+" "+p.unit+")</span></h2><p>"+n+" questions. "+p.note+"</p>";
+      p.blocks.forEach(function(b){
+        h+="<div class='block'><div class='bhead'><h3>"+b.title+"</h3><span class='btopic'>"+b.topic+"</span><span class='bpts'>"+b.pts+" "+p.unit+"</span></div>"+(b.intro?"<div class='intro'>"+b.intro+"</div>":"");
+        b.qs.forEach(function(q){
+          h+="<article class='q' id='q-"+q.id+"'><div class='num'>"+q.label+"</div><div class='body'><div class='head'><span class='tag'>"+q.topic+"</span><span class='pts'>"+ptsLabel(q)+"</span></div><div class='stem'>"+q.stem+"</div><div class='opts' role='radiogroup'>";
+          q.options.forEach(function(o,i){var id="o-"+q.id+"-"+i;h+="<label class='opt' for='"+id+"'><input type='radio' id='"+id+"' name='r-"+q.id+"' value='"+i+"'><span class='letter'>"+letter(q,i)+"</span><span class='txt'>"+o+"</span></label>";});
+          h+="</div><div class='verdict' hidden></div><div class='sol' hidden>"+q.solution+"</div></div></article>";
+        });
+        h+="</div>";
+      });
+      h+="</section>";
+    });
+    $("exam").innerHTML=h;
+    state.answers={};state.checked=false;var v=ls(key());if(v){state.answers=v.a||{};state.checked=!!v.c;}
+    Object.keys(state.answers).forEach(function(id){var el=document.getElementById("o-"+id+"-"+state.answers[id]);if(el)el.checked=true;});
+    $("results").hidden=true;$("check").textContent="Check answers";$("check").disabled=false;
+    if(state.checked)grade(false);
+    progress();setHash();
+  }
+  function progress(){var n=state.exam.questions.length,a=Object.keys(state.answers).length;$("progTxt").textContent=a+" of "+n+" answered";$("progBar").style.width=(n?a/n*100:0)+"%";}
+  function grade(scroll){
+    state.checked=true;save();
+    var s=seen(),add={};s.forEach(function(x){add[x]=1;});state.exam.itemIds.forEach(function(x){if(!add[x]){add[x]=1;s.push(x);}});ls("aca2-seen",s);
+    var tot=0,got=0,topics={},parts={};
+    state.exam.questions.forEach(function(q){
+      var art=document.getElementById("q-"+q.id),a=state.answers[q.id],ok=a!==undefined&&+a===q.answer;
+      tot+=q.pts;if(ok)got+=q.pts;
+      var t=topics[q.topic]||(topics[q.topic]={g:0,t:0});t.t+=q.pts;if(ok)t.g+=q.pts;
+      var p=parts[q.part]||(parts[q.part]={g:0,t:0});p.t+=q.pts;if(ok)p.g+=q.pts;
+      art.classList.add("checked");
+      art.querySelectorAll(".opt").forEach(function(l,i){l.classList.toggle("right",i===q.answer);l.classList.toggle("wrong",a!==undefined&&+a===i&&i!==q.answer);l.querySelector("input").disabled=true;});
+      var v=art.querySelector(".verdict");v.hidden=false;v.className="verdict "+(ok?"ok":(a===undefined?"skip":"no"));v.textContent=ok?"Correct · +"+q.pts:(a===undefined?"Not answered":"Incorrect");
+      art.querySelector(".sol").hidden=false;
+    });
+    var pv=tot?got/tot:0,h="<div class='eyebrow'>Result · Exam no. "+state.seed+"</div><div class='score'>"+got+" / "+tot+" <span class='pc'>("+Math.round(pv*100)+"%)</span></div>";
+    var pl=[];if(parts.ctrl)pl.push("Controlling "+parts.ctrl.g+" / "+parts.ctrl.t+" points");if(parts.aa)pl.push("Accounting &amp; Auditing "+parts.aa.g+" / "+parts.aa.t+" marks");
+    h+="<div>"+pl.join(" · ")+"</div><h2>By topic</h2><div class='topics'>";
+    Object.keys(topics).sort(function(x,y){return topics[x].g/topics[x].t-topics[y].g/topics[y].t;}).forEach(function(k){var t=topics[k],r=t.g/t.t;h+="<div class='topic"+(r<0.5?" weak":"")+"'><span class='t'>"+k+"</span><span class='v'>"+t.g+"/"+t.t+"</span><div class='track'><i style='width:"+(r*100)+"%'></i></div></div>";});
+    h+="</div><p class='hint'>Worked solutions are shown under every question below.</p><div class='row'><button class='btn primary' type='button' id='again'>Start a new exam</button><button class='btn' type='button' id='retry'>Retry this exam</button></div>";
+    $("results").innerHTML=h;$("results").hidden=false;$("check").textContent="Checked";$("check").disabled=true;
+    $("again").onclick=function(){state.seed=newSeed();render();window.scrollTo(0,0);};
+    $("retry").onclick=function(){state.answers={};state.checked=false;save();render();window.scrollTo(0,0);};
+    if(scroll&&$("results").scrollIntoView)$("results").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  document.addEventListener("change",function(e){var t=e.target;if(!t.name||t.name.indexOf("r-")!==0||state.checked)return;state.answers[t.name.slice(2)]=+t.value;save();progress();});
+  $("check").addEventListener("click",function(){if(!state.checked)grade(true);});
+  $("newExam").addEventListener("click",function(){state.seed=newSeed();render();window.scrollTo(0,0);});
+  $("resetSeen").addEventListener("click",function(){ls("aca2-seen",[]);$("resetSeen").textContent="Question history cleared";});
+  document.querySelectorAll(".seg button").forEach(function(b){b.addEventListener("click",function(){state.part=b.dataset.part;render();});});
+  window.addEventListener("hashchange",function(){var h=parseHash();if(h&&(h.seed!==state.seed||h.part!==state.part)){state.seed=h.seed;state.part=h.part;render();}});
+  var h0=parseHash();state.seed=h0?h0.seed:newSeed();state.part=h0?h0.part:"full";
+  render();
+})();
+</script>
+</body>
+</html>
